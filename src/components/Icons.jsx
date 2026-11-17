@@ -1,0 +1,240 @@
+import React from 'react';
+
+/**
+ * Apple SF Symbol Vector Glyphs
+ * Standardized to 20x20 viewBox, 1.5px stroke, round linecaps and joins
+ * Strictly NO emojis - 100% vector SVG icons matching Cupertino HIG.
+ */
+
+// App / Document icon (doc.text.fill style)
+export const DocTextIcon = ({ size = 18, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 3.5C4 2.67 4.67 2 5.5 2H11L16 7V16.5C16 17.33 15.33 18 14.5 18H5.5C4.67 18 4 17.33 4 16.5V3.5Z" />
+    <path d="M11 2V7H16" />
+    <path d="M7 10.5H13" />
+    <path d="M7 13.5H11" />
+  </svg>
+);
+
+// Sun Max (sun.max - Apple Light Mode)
+export const SunMaxIcon = ({ size = 17, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="10" cy="10" r="3.5" />
+    <line x1="10" y1="2" x2="10" y2="4" />
+    <line x1="10" y1="16" x2="10" y2="18" />
+    <line x1="4.34" y1="4.34" x2="5.76" y2="5.76" />
+    <line x1="14.24" y1="14.24" x2="15.66" y2="15.66" />
+    <line x1="2" y1="10" x2="4" y2="10" />
+    <line x1="16" y1="10" x2="18" y2="10" />
+    <line x1="4.34" y1="15.66" x2="5.76" y2="14.24" />
+    <line x1="14.24" y1="5.76" x2="15.66" y2="4.34" />
+  </svg>
+);
+
+// Moon (moon.fill - Apple Dark Mode)
+export const MoonIcon = ({ size = 16, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.29 12.8A7.5 7.5 0 1 1 9.2 2.71 6 6 0 0 0 17.29 12.8Z" />
+  </svg>
+);
+
+// Arrow Clockwise (arrow.clockwise - Refresh / Re-extract)
+export const ArrowClockwiseIcon = ({ size = 16, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.5 2.5V7H13" />
+    <path d="M17.2 10.8A7.5 7.5 0 1 1 15.3 5.3L17.5 7" />
+  </svg>
+);
+
+// Clock Arrow Circlepath (clock.arrow.circlepath - Saved History)
+export const ClockArrowIcon = ({ size = 16, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="10" cy="10" r="7.5" />
+    <polyline points="10 5.5 10 10 13.5 12" />
+  </svg>
+);
+
+// Chevron Right (chevron.right - Collapse sidebar)
+export const ChevronRightIcon = ({ size = 16, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="7.5 4.5 13 10 7.5 15.5" />
+  </svg>
+);
+
+// Small Chevron Right for list rows (disclosure indicator)
+export const ChevronRightSmallIcon = ({ size = 13, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="8 5 13 10 8 15" />
+  </svg>
+);
+
+// XMark (xmark - Close / Dismiss)
+export const XMarkIcon = ({ size = 14, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="5" x2="15" y2="15" />
+    <line x1="15" y1="5" x2="5" y2="15" />
+  </svg>
+);
+
+// Checkmark (checkmark - clean SVG vector checkmark for buttons)
+export const CheckmarkIcon = ({ size = 14, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="4.5 10.5 8.2 14.2 15.5 6.5" />
+  </svg>
+);
+
+// Checkmark Circle Fill (checkmark.circle.fill - for badges and toasts)
+export const CheckmarkCircleIcon = ({ size = 16, color = '#30D158' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none">
+    <circle cx="10" cy="10" r="8.5" fill={color} />
+    <polyline points="6 10 8.8 12.8 14 7.2" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+// Document on Clipboard (doc.on.clipboard - Copy for AI)
+export const DocOnClipboardIcon = ({ size = 15, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M13 5H14.5C15.33 5 16 5.67 16 6.5V16.5C16 17.33 15.33 18 14.5 18H5.5C4.67 18 4 17.33 4 16.5V6.5C4 5.67 4.67 5 5.5 5H7" />
+    <rect x="7" y="2" width="6" height="4.5" rx="1.5" />
+    <line x1="7.5" y1="10.5" x2="12.5" y2="10.5" />
+    <line x1="7.5" y1="13.5" x2="11.5" y2="13.5" />
+  </svg>
+);
+
+// Document Plaintext (doc.plaintext - Copy Raw JD)
+export const DocPlaintextIcon = ({ size = 15, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4.5 3C4.5 2.45 4.95 2 5.5 2H11.5L15.5 6V17C15.5 17.55 15.05 18 14.5 18H5.5C4.95 18 4.5 17.55 4.5 17V3Z" />
+    <polyline points="11.5 2 11.5 6 15.5 6" />
+    <line x1="7" y1="9.5" x2="13" y2="9.5" />
+    <line x1="7" y1="12.5" x2="13" y2="12.5" />
+    <line x1="7" y1="15.5" x2="10.5" y2="15.5" />
+  </svg>
+);
+
+// Arrow Down Document (arrow.down.doc - Export Markdown)
+export const ArrowDownDocIcon = ({ size = 14, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4.5 3C4.5 2.45 4.95 2 5.5 2H11L15.5 6.5V17C15.5 17.55 15.05 18 14.5 18H5.5C4.95 18 4.5 17.55 4.5 17V3Z" />
+    <polyline points="11 2 11 6.5 15.5 6.5" />
+    <line x1="10" y1="9" x2="10" y2="15" />
+    <polyline points="7.5 12.5 10 15 12.5 12.5" />
+  </svg>
+);
+
+// Target / Scope (scope - Resume prompt mode)
+export const TargetIcon = ({ size = 13, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="10" cy="10" r="7.5" />
+    <circle cx="10" cy="10" r="3.5" />
+    <line x1="10" y1="1" x2="10" y2="4" />
+    <line x1="10" y1="16" x2="10" y2="19" />
+    <line x1="1" y1="10" x2="4" y2="10" />
+    <line x1="16" y1="10" x2="19" y2="10" />
+  </svg>
+);
+
+// Envelope (envelope - Cover Letter prompt mode)
+export const EnvelopeIcon = ({ size = 13, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2.5" y="4.5" width="15" height="11" rx="2" />
+    <polyline points="3 5.5 10 11 17 5.5" />
+  </svg>
+);
+
+// Bubble Quote (bubble.left.and.text.bubble.right - Interview Questions prompt mode)
+export const BubbleQuoteIcon = ({ size = 13, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10.5 4.5H5.5C4.12 4.5 3 5.62 3 7C3 7.85 3.43 8.6 4.09 9.04L3.5 12.5L6.68 11.1C7.1 11.23 7.54 11.3 8 11.3H10.5C11.88 11.3 13 10.18 13 8.8V7C13 5.62 11.88 4.5 10.5 4.5Z" />
+    <path d="M13 8.5H14.5C15.88 8.5 17 9.62 17 11C17 11.85 16.57 12.6 15.91 13.04L16.5 16.5L13.32 15.1C12.9 15.23 12.46 15.3 12 15.3H9.5C8.85 15.3 8.25 15.05 7.8 14.65" />
+  </svg>
+);
+
+// Chart Bar (chart.bar.xaxis - Skills Analysis prompt mode)
+export const ChartBarIcon = ({ size = 13, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="2.5" y1="17.5" x2="17.5" y2="17.5" />
+    <rect x="4" y="11" width="3" height="6.5" rx="0.8" />
+    <rect x="8.5" y="6" width="3" height="11.5" rx="0.8" />
+    <rect x="13" y="3" width="3" height="14.5" rx="0.8" />
+  </svg>
+);
+
+// Calendar (calendar - Job posting date badge)
+export const CalendarIcon = ({ size = 12, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="14" height="13" rx="2.5" />
+    <line x1="3" y1="8" x2="17" y2="8" />
+    <line x1="7" y1="2" x2="7" y2="4.5" />
+    <line x1="13" y1="2" x2="13" y2="4.5" />
+  </svg>
+);
+
+// Location Pin (mappin.fill - Job location navigation)
+export const LocationPinIcon = ({ size = 12, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10 2.5C7.24 2.5 5 4.74 5 7.5C5 11.25 10 17.5 10 17.5C10 17.5 15 11.25 15 7.5C15 4.74 12.76 2.5 10 2.5Z" />
+    <circle cx="10" cy="7.5" r="2" />
+  </svg>
+);
+
+// Briefcase (briefcase.fill - Employment type e.g. Full-time, Hybrid)
+export const BriefcaseIcon = ({ size = 12, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="6" width="14" height="11" rx="2" />
+    <path d="M7 6V4.5C7 3.67 7.67 3 8.5 3H11.5C12.33 3 13 3.67 13 4.5V6" />
+    <path d="M3 10.5C6 12 14 12 17 10.5" />
+  </svg>
+);
+
+// Building (building.2.fill - Company name header)
+export const BuildingIcon = ({ size = 13, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3.5 17.5V4.5C3.5 3.67 4.17 3 5 3H11C11.83 3 12.5 3.67 12.5 4.5V17.5" />
+    <path d="M12.5 9H15C15.83 9 16.5 9.67 16.5 10.5V17.5" />
+    <line x1="2" y1="17.5" x2="18" y2="17.5" />
+    <circle cx="6.5" cy="6.5" r="0.75" fill={color} />
+    <circle cx="9.5" cy="6.5" r="0.75" fill={color} />
+    <circle cx="6.5" cy="10" r="0.75" fill={color} />
+    <circle cx="9.5" cy="10" r="0.75" fill={color} />
+  </svg>
+);
+
+// Banknote (banknote - Salary compensation badge)
+export const BankNoteIcon = ({ size = 12, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2.5" y="5" width="15" height="10" rx="2" />
+    <circle cx="10" cy="10" r="2.2" />
+    <line x1="5.5" y1="7.5" x2="5.5" y2="7.51" strokeWidth="2" />
+    <line x1="14.5" y1="12.5" x2="14.5" y2="12.51" strokeWidth="2" />
+  </svg>
+);
+
+// Trash (trash - Clear History)
+export const TrashIcon = ({ size = 13, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3.5 5.5H16.5" />
+    <path d="M7 5.5V3.5C7 2.95 7.45 2.5 8 2.5H12C12.55 2.5 13 2.95 13 3.5V5.5" />
+    <path d="M5 5.5L5.8 16.2C5.85 16.9 6.45 17.5 7.15 17.5H12.85C13.55 17.5 14.15 16.9 14.2 16.2L15 5.5" />
+    <line x1="8.5" y1="9" x2="8.5" y2="14" />
+    <line x1="11.5" y1="9" x2="11.5" y2="14" />
+  </svg>
+);
+
+// Sparkles / Apple Intelligence (sparkles - AI prompt modes)
+export const SparklesIcon = ({ size = 12, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10 2L11.5 7.5L17 9L11.5 10.5L10 16L8.5 10.5L3 9L8.5 7.5L10 2Z" />
+    <path d="M15.5 13.5L16.2 15.8L18.5 16.5L16.2 17.2L15.5 19.5L14.8 17.2L12.5 16.5L14.8 15.8L15.5 13.5Z" />
+  </svg>
+);
+
+// Document with Magnifying Glass (doc.text.magnifyingglass - Empty state)
+export const DocMagnifyingGlassIcon = ({ size = 38, color = 'var(--text-3)' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" />
+    <polyline points="14 2 14 8 20 8" />
+    <circle cx="11.5" cy="14.5" r="3" />
+    <line x1="13.7" y1="16.7" x2="17" y2="20" />
+  </svg>
+);

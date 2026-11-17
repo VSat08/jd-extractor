@@ -1,0 +1,493 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { Header } from './components/Header';
+import { JobCard } from './components/JobCard';
+import { Preview } from './components/Preview';
+import { PromptSelector } from './components/PromptSelector';
+import { ActionButtons } from './components/ActionButtons';
+import { HistorySheet } from './components/HistorySheet';
+import { SkeletonLoader } from './components/SkeletonLoader';
+import { Toast } from './components/Toast';
+import { DocMagnifyingGlassIcon, ArrowClockwiseIcon, ClockArrowIcon } from './components/Icons';
+
+// Helper to verify extension context is alive (prevents "Extension context invalidated" errors after reloads)
+const isContextValid = () => {
+  try {
+    return Boolean(typeof chrome !== 'undefined' && chrome?.runtime && !!chrome.runtime.id);
+  } catch (_) {
+    return false;
+  }
+};
+
+export const App = () => {
+  // Theme state: default to system preference or saved
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('jd_apple_theme');
+    if (saved === 'dark' || saved === 'light') return saved;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [jobData, setJobData] = useState(null);
+  const [promptMode, setPromptMode] = useState('resume');
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyItems, setHistoryItems] = useState([]);
+  const [toast, setToast] = useState({ visible: false, message: '' });
+
+  // Apply theme class to document body
+  useEffect(() => {
+    document.body.className = theme === 'dark' ? 'theme-dark' : 'theme-light';
+    localStorage.setItem('jd_apple_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
+  const showToast = useCallback((msg) => {
+    setToast({ visible: true, message: msg });
+    setTimeout(() => {
+      setToast({ visible: false, message: '' });
+    }, 2200);
+  }, []);
+
+  // Save clip to history
+  const saveToHistory = useCallback((data) => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('jd_react_history') || '[]');
+      const entry = {
+        id: Date.now(),
+        title: data.title || 'Untitled Role',
+        company: data.company || 'Unknown Company',
+        date: new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+        data,
+      };
+      const filtered = saved.filter((s) => !(s.title === entry.title && s.company === entry.company));
+      const updated = [entry, ...filtered].slice(0, 20);
+      localStorage.setItem('jd_react_history', JSON.stringify(updated));
+      setHistoryItems(updated);
+    } catch (_) {}
+  }, []);
+
+  const loadHistory = useCallback(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('jd_react_history') || '[]');
+      setHistoryItems(saved);
+    } catch (_) {}
+  }, []);
+
+  const handleExtractionResult = useCallback((res) => {
+    setLoading(false);
+    if (!res || res.error) {
+      setError(res?.message || 'No job description found on this page.');
+      setJobData(null);
+      return;
+    }
+    setJobData(res);
+    setError(null);
+    saveToHistory(res);
+  }, [saveToHistory]);
+
+  // Reliable active tab finder for Side Panel context
+  const getActiveTab = useCallback(async () => {
+    if (!isContextValid() || !chrome?.tabs) return null;
+
+    // 1. In Side Panel context, lastFocusedWindow targets the browser window holding web tabs
+    try {
+      const [focusedTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+      if (focusedTab && focusedTab.id) {
+        return focusedTab;
+      }
+    } catch (err) {
+      if (err?.message?.includes('context invalidated')) return null;
+    }
+
+    // 2. Fallback: normal browser window
+    try {
+      if (chrome.windows?.getLastFocused) {
+        const normalWin = await chrome.windows.getLastFocused({ windowTypes: ['normal'] }).catch(() => null);
+        if (normalWin && normalWin.id && isContextValid()) {
+          const [winTab] = await chrome.tabs.query({ active: true, windowId: normalWin.id });
+          if (winTab && winTab.id) return winTab;
+        }
+      }
+    } catch (err) {
+      if (err?.message?.includes('context invalidated')) return null;
+    }
+
+    // 3. Fallback: currentWindow
+    try {
+      if (isContextValid() && chrome.tabs) {
+        const [currTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (currTab && currTab.id) return currTab;
+      }
+    } catch (err) {
+      if (err?.message?.includes('context invalidated')) return null;
+    }
+
+    return null;
+  }, []);
+
+  // Extraction logic: dynamically targets the currently active browser tab
+  const extractData = useCallback(async () => {
+    if (!isContextValid()) {
+      setError('Extension was reloaded. Please refresh the page (F5) or re-open the side panel.');
+      setJobData(null);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const tab = await getActiveTab();
+      if (!tab || !tab.id) {
+        setError('No active tab detected.');
+        setJobData(null);
+        setLoading(false);
+        return;
+      }
+
+      const url = tab.url || '';
+      if (/^(chrome|edge|about|chrome-extension):/i.test(url)) {
+        setError('This is a browser system page. Switch to any tab with a job posting (e.g. LinkedIn, Workday, Citi, Indeed).');
+        setJobData(null);
+        setLoading(false);
+        return;
+      }
+
+      // Since content.js is registered in manifest content_scripts and host_permissions,
+      // it runs on all web pages. Query the tab directly:
+      let res = null;
+      try {
+        if (!isContextValid()) return;
+        res = await chrome.tabs.sendMessage(tab.id, { action: 'extract_jd' });
+      } catch (sendErr) {
+        if (sendErr?.message?.includes('context invalidated')) {
+          setError('Extension was reloaded. Please refresh the page (F5) or re-open the side panel.');
+          setJobData(null);
+          setLoading(false);
+          return;
+        }
+
+        // If content script was not ready yet (e.g. tab just reloaded), inject via scripting
+        if (chrome.scripting && isContextValid()) {
+          try {
+            await chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              files: ['content.js'],
+            });
+            await new Promise((r) => setTimeout(r, 80));
+            if (isContextValid()) {
+              res = await chrome.tabs.sendMessage(tab.id, { action: 'extract_jd' });
+            }
+          } catch (injectErr) {
+            if (injectErr?.message?.includes('context invalidated')) {
+              setError('Extension was reloaded. Please refresh the page (F5) or re-open the side panel.');
+              setJobData(null);
+              setLoading(false);
+              return;
+            }
+            console.warn('[JD Extractor] Script injection error:', injectErr);
+          }
+        }
+      }
+
+      if (res?.loading) {
+        setLoading(true);
+        // Page/SPA is actively rendering; retry in 350ms to smoothly capture description
+        setTimeout(() => {
+          if (isContextValid()) extractData();
+        }, 350);
+        return;
+      }
+
+      if (res && !res.error && res.description) {
+        handleExtractionResult(res);
+      } else {
+        setError(res?.message || 'No job description found on this page. Make sure you are on a specific job posting page.');
+        setJobData(null);
+        setLoading(false);
+      }
+    } catch (globalErr) {
+      if (globalErr?.message?.includes('context invalidated')) {
+        setError('Extension was reloaded. Please refresh the page (F5) or re-open the side panel.');
+      } else {
+        setError(globalErr?.message || 'An unexpected extraction error occurred.');
+      }
+      setJobData(null);
+      setLoading(false);
+    }
+  }, [getActiveTab, handleExtractionResult]);
+
+  // Listen to tab switching & updates across the browser (Native Side Panel functionality)
+  useEffect(() => {
+    if (!isContextValid() || !chrome?.tabs) return;
+
+    // Auto-extract whenever the user switches to a different tab
+    const onTabActivated = () => {
+      if (isContextValid()) extractData();
+    };
+
+    // Auto-extract whenever the active tab completes loading/navigating
+    const onTabUpdated = (tabId, changeInfo, tab) => {
+      if (changeInfo.status === 'complete' && tab?.active && isContextValid()) {
+        extractData();
+      }
+    };
+
+    // Auto-extract when an in-page SPA navigation occurs or real-time DOM mutation completes
+    const onRuntimeMessage = (message) => {
+      if (!isContextValid()) return;
+      if (message?.action === 'spa_url_changed') {
+        extractData();
+      } else if (message?.action === 'auto_extraction_complete' && message?.data) {
+        handleExtractionResult(message.data);
+      }
+    };
+
+    try {
+      chrome.tabs.onActivated.addListener(onTabActivated);
+      chrome.tabs.onUpdated.addListener(onTabUpdated);
+      if (chrome.runtime?.onMessage) {
+        chrome.runtime.onMessage.addListener(onRuntimeMessage);
+      }
+    } catch (_) {}
+
+    return () => {
+      try {
+        if (isContextValid()) {
+          chrome.tabs?.onActivated?.removeListener(onTabActivated);
+          chrome.tabs?.onUpdated?.removeListener(onTabUpdated);
+          chrome.runtime?.onMessage?.removeListener(onRuntimeMessage);
+        }
+      } catch (_) {}
+    };
+  }, [extractData]);
+
+  // Initial load
+  useEffect(() => {
+    loadHistory();
+    extractData();
+  }, [extractData, loadHistory]);
+
+  // Close Side Panel action
+  const handleCollapse = useCallback(() => {
+    try {
+      window.close();
+    } catch (_) {}
+  }, []);
+
+  // Listen for Escape key
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (historyOpen) {
+          setHistoryOpen(false);
+        } else {
+          try {
+            window.close();
+          } catch (_) {}
+        }
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [historyOpen]);
+
+  // Plain JD Formatter
+  const buildPlainJD = (data) => {
+    const parts = [];
+    if (data.title) parts.push(`## ${data.title}`);
+    const meta = [];
+    if (data.company)  meta.push(`**Company:** ${data.company}`);
+    if (data.location) meta.push(`**Location:** ${data.location}`);
+    if (data.type)     meta.push(`**Type:** ${data.type}`);
+    if (data.salary)   meta.push(`**Salary:** ${data.salary}`);
+    if (meta.length)   parts.push(meta.join('\n'));
+    parts.push('---');
+    parts.push(data.description || '');
+    return parts.join('\n\n');
+  };
+
+  // AI Prompt Formatter (4 Modes)
+  const buildAIPrompt = (data, mode) => {
+    const role = data.title || 'the target role';
+    const company = data.company ? ` at ${data.company}` : '';
+    const jd = buildPlainJD(data);
+
+    switch (mode) {
+      case 'cover':
+        return `I am applying for the role of **${role}**${company}.
+
+Please write a highly persuasive, authentic, and tailored Cover Letter for this position.
+- Emphasize alignment with the specific responsibilities and qualifications mentioned below.
+- Keep the tone confident, professional, and engaging.
+
+---
+### Job Description:
+${jd}`;
+
+      case 'questions':
+        return `I am preparing for an interview for the role of **${role}**${company}.
+
+Based on the job description below, please generate:
+1. Top 5 technical / hard-skill questions likely to be asked
+2. Top 5 behavioral questions (using the STAR format)
+3. Concise bullet points for what a standout answer should cover
+
+---
+### Job Description:
+${jd}`;
+
+      case 'skills':
+        return `Please analyze this job description for **${role}**${company} and provide:
+1. **Core Must-Have Technical Skills** (Ranked by priority)
+2. **Key Tools, Frameworks & Certifications**
+3. **Essential Soft Skills & Cultural Fit Signals**
+4. **ATS Missing Keywords** to optimize for
+
+---
+### Job Description:
+${jd}`;
+
+      case 'resume':
+      default:
+        return `I am applying for the role of **${role}**${company}.
+
+Here is the complete job description:
+${jd}
+
+---
+Please help me tailor my resume for this position:
+1. Extract the top 10 ATS keywords I must include.
+2. Provide 3–5 high-impact bullet points rewritten with action verbs and metrics for this role.
+3. Highlight the most critical requirements I should address first.`;
+    }
+  };
+
+  // Copy Handlers
+  const handleCopyAi = async () => {
+    if (!jobData) return false;
+    const text = buildAIPrompt(jobData, promptMode);
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast(`Copied ${promptMode} prompt`);
+      return true;
+    } catch {
+      showToast('Failed to copy');
+      return false;
+    }
+  };
+
+  const handleCopyJd = async () => {
+    if (!jobData) return false;
+    const text = buildPlainJD(jobData);
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast('Clean JD copied');
+      return true;
+    } catch {
+      showToast('Failed to copy');
+      return false;
+    }
+  };
+
+  const handleExportMd = () => {
+    if (!jobData) return;
+    const text = buildPlainJD(jobData);
+    const slug = (jobData.title || 'job-description').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 50);
+    const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${slug}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Saved as Markdown file');
+  };
+
+  const handleSelectHistory = (data) => {
+    setJobData(data);
+    setError(null);
+    setHistoryOpen(false);
+    showToast('Restored from history');
+  };
+
+  const handleClearHistory = () => {
+    localStorage.removeItem('jd_react_history');
+    setHistoryItems([]);
+    showToast('History cleared');
+  };
+
+  return (
+    <div className="app-container">
+      <Header
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        onRefresh={extractData}
+        onOpenHistory={() => setHistoryOpen(true)}
+        onCollapse={handleCollapse}
+      />
+
+      {loading && <SkeletonLoader />}
+
+      {!loading && error && (
+        <div className="empty-state">
+          <div className="empty-card">
+            <div className="empty-icon-wrap">
+              <DocMagnifyingGlassIcon size={26} color="var(--apple-blue)" />
+            </div>
+            <h2 className="empty-title">
+              {error.includes('reloaded') ? 'Extension Updated' : 'No Job Posting Detected'}
+            </h2>
+            <p className="empty-subtitle">{error}</p>
+            <div className="empty-actions">
+              <button className="btn btn-filled" onClick={extractData}>
+                <ArrowClockwiseIcon size={14} color="#FFFFFF" />
+                <span>Retry Extraction</span>
+              </button>
+              {historyItems.length > 0 && (
+                <button className="btn btn-tinted" onClick={() => setHistoryOpen(true)}>
+                  <ClockArrowIcon size={14} color="var(--apple-blue)" />
+                  <span>View Saved Clips ({historyItems.length})</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!loading && !error && jobData && (
+        <>
+          <JobCard data={jobData} />
+          <Preview text={jobData.description} />
+          <PromptSelector activeMode={promptMode} onChangeMode={setPromptMode} />
+          <ActionButtons
+            onCopyAi={handleCopyAi}
+            onCopyJd={handleCopyJd}
+            onExportMd={handleExportMd}
+          />
+          <footer className="footer-meta">
+            <span>{jobData.method || 'Auto'}</span>
+            <span>·</span>
+            <span>{jobData.time || 0}ms</span>
+            <span>·</span>
+            <span>100% Private</span>
+          </footer>
+        </>
+      )}
+
+      <HistorySheet
+        isOpen={historyOpen}
+        items={historyItems}
+        onSelect={handleSelectHistory}
+        onClear={handleClearHistory}
+        onClose={() => setHistoryOpen(false)}
+      />
+
+      <Toast message={toast.message} visible={toast.visible} />
+    </div>
+  );
+};
