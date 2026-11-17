@@ -591,10 +591,54 @@
     return null;
   }
 
+  // Known non-career web apps / domains that should never be heuristically parsed as JDs
+  const NON_JOB_DOMAINS = [
+    /mail\.google\.com/i,
+    /outlook\.(live|office)\.com/i,
+    /mail\.yahoo\.com/i,
+    /github\.com\/(?!.*\/careers|.*\/jobs)/i,
+    /gitlab\.com\/(?!.*\/careers|.*\/jobs)/i,
+    /youtube\.com/i,
+    /netflix\.com/i,
+    /spotify\.com/i,
+    /twitter\.com|x\.com/i,
+    /facebook\.com|instagram\.com/i,
+    /reddit\.com/i,
+    /amazon\.(com|in|co\.uk)\/(?!.*\/jobs|.*\/careers)/i,
+    /google\.(com|co\.[a-z]+)\/(search|drive|docs|maps|intl)/i,
+    /wikipedia\.org/i
+  ];
+
+  function isNonJobDomain(url) {
+    return NON_JOB_DOMAINS.some((pattern) => pattern.test(url));
+  }
+
+  // Strong job posting signals required for heuristic extraction
+  const JOB_HEURISTIC_SIGNALS = [
+    /\b(responsibilities|duties|what you('ll| will) do|role overview|about the (role|position|job))\b/i,
+    /\b(qualifications|requirements|what you('ll| will) bring|must have|skills required|experience required|who you are|basic qualifications)\b/i,
+    /\b(apply now|how to apply|apply for this (job|role|position)|submit application|easy apply)\b/i,
+    /\b(benefits|what we offer|compensation|perks)\b/i,
+    /\b(job description|position summary|job summary|job overview)\b/i,
+    /\b(full[\s-]time|part[\s-]time|hybrid|remote|years of experience)\b/i
+  ];
+
+  function countJobSignals(text) {
+    let count = 0;
+    for (const pattern of JOB_HEURISTIC_SIGNALS) {
+      if (pattern.test(text)) count++;
+    }
+    return count;
+  }
+
   function extractByHeuristic() {
+    const url = window.location.href;
+    if (isNonJobDomain(url)) return null;
+
     // Search candidates in live DOM to ensure innerText layout calculations are valid
     const candidates = Array.from(document.querySelectorAll('main, article, [role="main"], section, div'));
     let best = null;
+    let maxScore = 0;
     let maxLen = 0;
 
     candidates.forEach((el) => {
@@ -607,13 +651,20 @@
         return;
       }
       const text = (el.innerText || '').trim();
-      if (text.length > maxLen && text.length < 80000) {
-        maxLen = text.length;
-        best = el;
+      if (text.length < 150 || text.length > 80000) return;
+
+      const signals = countJobSignals(text);
+      // Require at least 2 distinct job posting signals (e.g. responsibilities + requirements)
+      if (signals >= 2) {
+        if (signals > maxScore || (signals === maxScore && text.length > maxLen)) {
+          maxScore = signals;
+          maxLen = text.length;
+          best = el;
+        }
       }
     });
 
-    if (!best || maxLen < 120) return null;
+    if (!best || maxScore < 2) return null;
     return {
       title: document.title.replace(/\s*[\|–—\-]\s*.{1,30}$/, '').trim(),
       company: '',
@@ -629,6 +680,15 @@
   async function executeExtraction() {
     const t0 = performance.now();
     let res = null;
+
+    // Immediately reject known non-job web apps (Gmail, GitHub repos, YouTube, etc.)
+    if (isNonJobDomain(window.location.href)) {
+      return {
+        error: true,
+        message: 'No job description found on this page. Make sure you are on a specific job posting page.',
+        time: Math.round(performance.now() - t0),
+      };
+    }
 
     // On LinkedIn, always use dedicated extractor so the right-hand details rail is captured
     // and NEVER fall back to generic heuristic that could scrape the search results list

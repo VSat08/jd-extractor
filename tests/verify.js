@@ -134,6 +134,31 @@ test('SkeletonLoader component and Apple shimmer CSS are integrated', () => {
   assert.ok(app.includes('res?.loading'), 'App.jsx handles loading retries gracefully');
 });
 
+// 8. Non-Job Web App Filtering & Job Signal Qualification Check
+test('content.js filters non-job domains (Gmail, GitHub) and qualifies heuristic job signals', () => {
+  const content = fs.readFileSync('content.js', 'utf8');
+  assert.ok(content.includes('NON_JOB_DOMAINS'), 'Defines NON_JOB_DOMAINS blacklist');
+  assert.ok(content.includes('JOB_HEURISTIC_SIGNALS'), 'Defines semantic job signals');
+  assert.ok(content.includes('countJobSignals'), 'Counts semantic job signals');
+
+  // Verify non-job regexes
+  const nonJobUrls = [
+    'https://mail.google.com/mail/u/0/#inbox',
+    'https://github.com/VSat08/jd-extractor',
+    'https://www.youtube.com/watch?v=123',
+    'https://twitter.com/home'
+  ];
+  const NON_JOB_REGEX = [
+    /mail\.google\.com/i,
+    /github\.com\/(?!.*\/careers|.*\/jobs)/i,
+    /youtube\.com/i,
+    /twitter\.com|x\.com/i
+  ];
+  nonJobUrls.forEach((url, i) => {
+    assert.ok(NON_JOB_REGEX[i].test(url), `Failed detecting non-job URL: ${url}`);
+  });
+});
+
 console.log(`\nResults: ${passed}/${total} tests passed.\n`);
 if (passed === total) {
   console.log('✅ All checks passed! Production React extension is verified.\n');
