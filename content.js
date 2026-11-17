@@ -593,19 +593,55 @@
 
   // Known non-career web apps / domains that should never be heuristically parsed as JDs
   const NON_JOB_DOMAINS = [
+    // AI Chat & LLM Assistants
+    /gemini\.google\.com/i,
+    /chatgpt\.com|chat\.openai\.com|platform\.openai\.com/i,
+    /claude\.ai/i,
+    /perplexity\.ai/i,
+    /copilot\.microsoft\.com/i,
+    /poe\.com/i,
+    /chat\.mistral\.ai/i,
+    /chat\.deepseek\.com/i,
+    /huggingface\.co/i,
+    /v0\.dev/i,
+    /character\.ai/i,
+
+    // Webmail & Communication
     /mail\.google\.com/i,
     /outlook\.(live|office)\.com/i,
     /mail\.yahoo\.com/i,
+    /slack\.com/i,
+    /discord\.com/i,
+    /teams\.microsoft\.com/i,
+    /web\.whatsapp\.com/i,
+    /telegram\.org/i,
+
+    // Productivity, Docs & Code Hosting
+    /docs\.google\.com|drive\.google\.com|calendar\.google\.com/i,
+    /notion\.so/i,
+    /figma\.com/i,
+    /canva\.com/i,
+    /miro\.com/i,
+    /trello\.com/i,
     /github\.com\/(?!.*\/careers|.*\/jobs)/i,
     /gitlab\.com\/(?!.*\/careers|.*\/jobs)/i,
+    /stackoverflow\.com\/(?!.*\/jobs)/i,
+
+    // Media & Social Platforms
     /youtube\.com/i,
     /netflix\.com/i,
     /spotify\.com/i,
+    /twitch\.tv/i,
     /twitter\.com|x\.com/i,
     /facebook\.com|instagram\.com/i,
     /reddit\.com/i,
-    /amazon\.(com|in|co\.uk)\/(?!.*\/jobs|.*\/careers)/i,
-    /google\.(com|co\.[a-z]+)\/(search|drive|docs|maps|intl)/i,
+    /tiktok\.com/i,
+
+    // Search, Knowledge & General Shopping
+    /amazon\.(com|in|co\.uk|de|fr|ca|co\.jp)\/(?!.*\/jobs|.*\/careers)/i,
+    /google\.(com|co\.[a-z]+)\/(search|drive|docs|maps|intl|preferences|flights)/i,
+    /bing\.com/i,
+    /duckduckgo\.com/i,
     /wikipedia\.org/i
   ];
 
@@ -635,6 +671,8 @@
     const url = window.location.href;
     if (isNonJobDomain(url)) return null;
 
+    const hasCareerUrl = /(careers?|jobs?|positions?|openings?|roles?|vacanc(y|ies)|work-with-us|join-us)/i.test(url);
+
     // Search candidates in live DOM to ensure innerText layout calculations are valid
     const candidates = Array.from(document.querySelectorAll('main, article, [role="main"], section, div'));
     let best = null;
@@ -646,6 +684,10 @@
       if (el.closest('nav, header, footer, aside, .jobs-search-results-list, .scaffold-layout__list, [role="navigation"]')) {
         return;
       }
+      // Exclude chat message bubbles, AI prompt conversations, and forum comments
+      if (el.closest('[class*="chat"], [class*="message"], [class*="conversation"], [data-message-author-role], [class*="model-response"], [class*="user-prompt"], [class*="response-container"], [class*="streaming-message"]')) {
+        return;
+      }
       const cls = ((el.className || '') + ' ' + (el.id || '')).toLowerCase();
       if (/nav|header|footer|sidebar|cookie|banner|toast|notification|alert|modal|dialog|results-list|search-results|scaffold-layout__list/i.test(cls)) {
         return;
@@ -654,8 +696,15 @@
       if (text.length < 150 || text.length > 80000) return;
 
       const signals = countJobSignals(text);
-      // Require at least 2 distinct job posting signals (e.g. responsibilities + requirements)
-      if (signals >= 2) {
+      // For general non-career URLs, require at least 3 signals and an apply button
+      const minSignals = hasCareerUrl ? 2 : 3;
+      if (signals >= minSignals) {
+        if (!hasCareerUrl) {
+          const hasApplyBtn = el.querySelector('a[href*="apply"], button, [role="button"]') &&
+            /apply|submit application/i.test(el.innerText);
+          if (!hasApplyBtn) return;
+        }
+
         if (signals > maxScore || (signals === maxScore && text.length > maxLen)) {
           maxScore = signals;
           maxLen = text.length;

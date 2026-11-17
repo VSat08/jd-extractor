@@ -141,16 +141,22 @@ test('content.js filters non-job domains (Gmail, GitHub) and qualifies heuristic
   assert.ok(content.includes('JOB_HEURISTIC_SIGNALS'), 'Defines semantic job signals');
   assert.ok(content.includes('countJobSignals'), 'Counts semantic job signals');
 
-  // Verify non-job regexes
+  // Verify non-job regexes (including AI assistants and webmail)
   const nonJobUrls = [
     'https://mail.google.com/mail/u/0/#inbox',
     'https://github.com/VSat08/jd-extractor',
+    'https://gemini.google.com/app/31a9598165e73910',
+    'https://chatgpt.com/c/12345',
+    'https://claude.ai/chat/67890',
     'https://www.youtube.com/watch?v=123',
     'https://twitter.com/home'
   ];
   const NON_JOB_REGEX = [
     /mail\.google\.com/i,
     /github\.com\/(?!.*\/careers|.*\/jobs)/i,
+    /gemini\.google\.com/i,
+    /chatgpt\.com|chat\.openai\.com/i,
+    /claude\.ai/i,
     /youtube\.com/i,
     /twitter\.com|x\.com/i
   ];
