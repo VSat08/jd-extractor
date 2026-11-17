@@ -9,7 +9,7 @@ import { PromptSelector } from './components/PromptSelector';
 import { ActionButtons } from './components/ActionButtons';
 import { HistorySheet } from './components/HistorySheet';
 import { InfoSheet } from './components/InfoSheet';
-import { SkeletonLoader } from './components/SkeletonLoader';
+import { SkeletonLoader, FitSkeletonLoader } from './components/SkeletonLoader';
 import { Toast } from './components/Toast';
 import { DocMagnifyingGlassIcon, ArrowClockwiseIcon, ClockArrowIcon, BoltIcon, PersonBadgeIcon } from './components/Icons';
 import { getResumeProfile, saveResumeProfile, deleteResumeProfile } from './utils/storage';
@@ -261,7 +261,10 @@ export const App = () => {
 
     const onRuntimeMessage = (message) => {
       if (!isContextValid()) return;
-      if (message?.action === 'spa_url_changed') {
+      if (message?.action === 'job_selection_started') {
+        setLoading(true);
+        setError(null);
+      } else if (message?.action === 'spa_url_changed') {
         extractData();
       } else if (message?.action === 'auto_extraction_complete' && message?.data) {
         handleExtractionResult(message.data);
@@ -562,13 +565,43 @@ Please help me tailor my resume for this position:
 
       {/* ── 2. ROLE FIT TAB ── */}
       {activeTab === 'fit' && (
-        <FitAnalysisCard
-          jobData={jobData}
-          resumeProfile={resumeProfile}
-          onNavigateToResume={() => setActiveTab('resume')}
-          onApplyGapTailoredPrompt={handleApplyGapTailoredPrompt}
-          showToast={showToast}
-        />
+        <>
+          {loading && <FitSkeletonLoader />}
+
+          {!loading && error && (
+            <div className="empty-state">
+              <div className="empty-card">
+                <div className="empty-icon-wrap">
+                  <DocMagnifyingGlassIcon size={26} color="var(--apple-blue)" />
+                </div>
+                <h2 className="empty-title">
+                  {error.includes('reloaded') ? 'Extension Updated' : 'No Active Job Description'}
+                </h2>
+                <p className="empty-subtitle">{error}</p>
+                <div className="empty-actions">
+                  <button className="btn btn-filled" onClick={extractData}>
+                    <ArrowClockwiseIcon size={14} color="#FFFFFF" />
+                    <span>Retry Extraction</span>
+                  </button>
+                  <button className="btn btn-tinted" onClick={() => setActiveTab('resume')}>
+                    <PersonBadgeIcon size={14} color="var(--apple-blue)" />
+                    <span>{resumeProfile ? 'Manage My Resume' : 'Upload Resume'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!loading && !error && (
+            <FitAnalysisCard
+              jobData={jobData}
+              resumeProfile={resumeProfile}
+              onNavigateToResume={() => setActiveTab('resume')}
+              onApplyGapTailoredPrompt={handleApplyGapTailoredPrompt}
+              showToast={showToast}
+            />
+          )}
+        </>
       )}
 
       {/* ── 3. MY RESUME TAB ── */}

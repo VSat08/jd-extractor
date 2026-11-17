@@ -128,6 +128,7 @@ test('SkeletonLoader component and Apple shimmer CSS are integrated', () => {
   assert.ok(comp.includes('skeleton-preview-box'), 'Preview skeleton present');
   assert.ok(comp.includes('skeleton-segmented'), 'Prompt selector skeleton present');
   assert.ok(comp.includes('skeleton-btn-primary'), 'Action button skeleton present');
+  assert.ok(comp.includes('FitSkeletonLoader'), 'FitSkeletonLoader present for Role Fit tab');
 
   const css = fs.readFileSync('src/styles/apple-theme.css', 'utf8');
   assert.ok(css.includes('apple-shimmer'), 'Apple shimmer keyframes defined');
@@ -135,6 +136,7 @@ test('SkeletonLoader component and Apple shimmer CSS are integrated', () => {
 
   const app = fs.readFileSync('src/App.jsx', 'utf8');
   assert.ok(app.includes('SkeletonLoader'), 'SkeletonLoader imported and used in App.jsx');
+  assert.ok(app.includes('FitSkeletonLoader'), 'FitSkeletonLoader used in App.jsx for Role Fit tab');
   assert.ok(app.includes('res?.loading'), 'App.jsx handles loading retries gracefully');
 });
 

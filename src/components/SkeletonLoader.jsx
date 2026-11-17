@@ -74,3 +74,83 @@ export const SkeletonLoader = () => {
     </div>
   );
 };
+
+/**
+ * Apple Human Interface Skeleton Loader (Role Fit Tab)
+ * Renders shimmering placeholder geometry matching the exact layout of
+ * Target Role Banner, Role Match Score, Inset Analysis, Matching Skills,
+ * Skill Gaps, and Gap Tailoring Action button to eliminate layout shifts (CLS).
+ */
+export const FitSkeletonLoader = () => {
+  return (
+    <div className="fit-view-wrapper skeleton-container" aria-busy="true" aria-label="Calculating role fitness">
+      {/* 1. Target Role Banner Skeleton */}
+      <div className="apple-card fit-target-banner skeleton-card">
+        <div className="skeleton-box skeleton-label" style={{ width: '120px', height: '10px' }} />
+        <div className="skeleton-box skeleton-title" style={{ width: '82%', height: '16px', marginTop: '3px' }} />
+        <div className="skeleton-box skeleton-line" style={{ width: '35%', height: '12px' }} />
+      </div>
+
+      {/* 2. Main Fitness Card Skeleton */}
+      <div className="apple-card fit-analysis-card skeleton-card">
+        {/* Card Header (Title + Score Badge) */}
+        <div className="fit-card-header">
+          <div className="fit-header-left" style={{ gap: '8px' }}>
+            <div className="skeleton-box skeleton-icon-sm" style={{ width: '15px', height: '15px', borderRadius: '4px' }} />
+            <div className="skeleton-box skeleton-title" style={{ width: '115px', height: '14px', marginBottom: 0 }} />
+          </div>
+          <div className="skeleton-box skeleton-badge" style={{ width: '105px', height: '22px' }} />
+        </div>
+
+        {/* Progress Track Skeleton */}
+        <div className="fit-progress-track">
+          <div className="skeleton-box" style={{ width: '100%', height: '100%' }} />
+        </div>
+
+        {/* Description line skeleton */}
+        <div className="skeleton-box skeleton-line" style={{ width: '78%', height: '12px' }} />
+
+        {/* Analysis Inset Box Skeleton */}
+        <div className="fit-analysis-section">
+          <div className="skeleton-box skeleton-label" style={{ width: '60px', height: '10px' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div className="skeleton-box skeleton-line" style={{ width: '92%', height: '11px' }} />
+            <div className="skeleton-box skeleton-line" style={{ width: '74%', height: '11px' }} />
+          </div>
+        </div>
+
+        {/* Matching Skills Section Skeleton */}
+        <div className="fit-skills-section">
+          <div className="fit-skills-header">
+            <div className="skeleton-box skeleton-label" style={{ width: '120px', height: '12px' }} />
+          </div>
+          <div className="skills-pill-wrap">
+            <div className="skeleton-box skeleton-badge" style={{ width: '75px', height: '22px' }} />
+            <div className="skeleton-box skeleton-badge" style={{ width: '85px', height: '22px' }} />
+            <div className="skeleton-box skeleton-badge" style={{ width: '60px', height: '22px' }} />
+            <div className="skeleton-box skeleton-badge" style={{ width: '90px', height: '22px' }} />
+            <div className="skeleton-box skeleton-badge" style={{ width: '65px', height: '22px' }} />
+            <div className="skeleton-box skeleton-badge" style={{ width: '78px', height: '22px' }} />
+          </div>
+        </div>
+
+        {/* Skill Gaps Section Skeleton */}
+        <div className="fit-skills-section">
+          <div className="fit-skills-header">
+            <div className="skeleton-box skeleton-label" style={{ width: '150px', height: '12px' }} />
+          </div>
+          <div className="skills-pill-wrap">
+            <div className="skeleton-box skeleton-badge" style={{ width: '70px', height: '22px' }} />
+            <div className="skeleton-box skeleton-badge" style={{ width: '82px', height: '22px' }} />
+            <div className="skeleton-box skeleton-badge" style={{ width: '95px', height: '22px' }} />
+          </div>
+        </div>
+
+        {/* Tailor Button Action Skeleton */}
+        <div className="fit-action-row" style={{ marginTop: '2px' }}>
+          <div className="skeleton-box skeleton-btn-primary" style={{ height: '34px', borderRadius: 'var(--radius-md)' }} />
+        </div>
+      </div>
+    </div>
+  );
+};

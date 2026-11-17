@@ -886,6 +886,7 @@
       '.jobs-search-results-list__list-item, [data-occludable-job-id], [data-job-id], .job-card-container, .jobs-search-results__list-item'
     );
     if (jobItem) {
+      safeSendMessage({ action: 'job_selection_started' });
       // Allow LinkedIn 250ms to start updating, then trigger extraction
       triggerSpaUpdate(250);
     }
