@@ -6,9 +6,17 @@ import {
   ArrowClockwiseIcon,
   ClockArrowIcon,
   ChevronRightIcon,
+  QuestionMarkCircleIcon,
 } from './Icons';
 
-export const Header = ({ theme, onToggleTheme, onRefresh, onOpenHistory, onCollapse }) => {
+export const Header = ({
+  theme,
+  onToggleTheme,
+  onRefresh,
+  onOpenHistory,
+  onOpenInfo,
+  onCollapse,
+}) => {
   return (
     <header className="header">
       <div className="header-brand">
@@ -20,7 +28,7 @@ export const Header = ({ theme, onToggleTheme, onRefresh, onOpenHistory, onColla
       </div>
 
       <div className="header-actions">
-        {/* Theme Toggle (Light / Dark) */}
+        {/* Appearance Toggle (Light / Dark) */}
         <button 
           className="icon-btn" 
           onClick={onToggleTheme} 
@@ -48,6 +56,16 @@ export const Header = ({ theme, onToggleTheme, onRefresh, onOpenHistory, onColla
           aria-label="Recent clips"
         >
           <ClockArrowIcon size={15} />
+        </button>
+
+        {/* Info & Privacy FAQ */}
+        <button 
+          className="icon-btn" 
+          onClick={onOpenInfo} 
+          title="About & Privacy FAQ"
+          aria-label="About and privacy FAQ"
+        >
+          <QuestionMarkCircleIcon size={15} />
         </button>
 
         {/* Close Side Panel */}

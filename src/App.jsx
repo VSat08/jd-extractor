@@ -1,13 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
+import { NavSegment } from './components/NavSegment';
 import { JobCard } from './components/JobCard';
+import { FitAnalysisCard } from './components/FitAnalysisCard';
+import { ResumeView } from './components/ResumeView';
 import { Preview } from './components/Preview';
 import { PromptSelector } from './components/PromptSelector';
 import { ActionButtons } from './components/ActionButtons';
 import { HistorySheet } from './components/HistorySheet';
+import { InfoSheet } from './components/InfoSheet';
 import { SkeletonLoader } from './components/SkeletonLoader';
 import { Toast } from './components/Toast';
-import { DocMagnifyingGlassIcon, ArrowClockwiseIcon, ClockArrowIcon } from './components/Icons';
+import { DocMagnifyingGlassIcon, ArrowClockwiseIcon, ClockArrowIcon, BoltIcon, PersonBadgeIcon } from './components/Icons';
+import { getResumeProfile, saveResumeProfile, deleteResumeProfile } from './utils/storage';
+import { buildGapTailoredPrompt } from './utils/fitEngine';
 
 // Helper to verify extension context is alive (prevents "Extension context invalidated" errors after reloads)
 const isContextValid = () => {
@@ -26,19 +32,38 @@ export const App = () => {
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
 
+  const [activeTab, setActiveTab] = useState('job'); // 'job' | 'fit' | 'resume'
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [jobData, setJobData] = useState(null);
   const [promptMode, setPromptMode] = useState('resume');
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
   const [historyItems, setHistoryItems] = useState([]);
   const [toast, setToast] = useState({ visible: false, message: '' });
+  const [resumeProfile, setResumeProfile] = useState(null);
+  const [customGapPrompt, setCustomGapPrompt] = useState(null);
 
   // Apply theme class to document body
   useEffect(() => {
     document.body.className = theme === 'dark' ? 'theme-dark' : 'theme-light';
     localStorage.setItem('jd_apple_theme', theme);
   }, [theme]);
+
+  // Load saved resume on startup
+  useEffect(() => {
+    const initResume = async () => {
+      try {
+        const saved = await getResumeProfile();
+        if (saved) {
+          setResumeProfile(saved);
+        }
+      } catch (err) {
+        console.warn('[App] Could not load resume profile:', err);
+      }
+    };
+    initResume();
+  }, []);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
@@ -81,10 +106,12 @@ export const App = () => {
     if (!res || res.error) {
       setError(res?.message || 'No job description found on this page.');
       setJobData(null);
+      setCustomGapPrompt(null);
       return;
     }
     setJobData(res);
     setError(null);
+    setCustomGapPrompt(null);
     saveToHistory(res);
   }, [saveToHistory]);
 
@@ -157,8 +184,6 @@ export const App = () => {
         return;
       }
 
-      // Since content.js is registered in manifest content_scripts and host_permissions,
-      // it runs on all web pages. Query the tab directly:
       let res = null;
       try {
         if (!isContextValid()) return;
@@ -196,7 +221,6 @@ export const App = () => {
 
       if (res?.loading) {
         setLoading(true);
-        // Page/SPA is actively rendering; retry in 350ms to smoothly capture description
         setTimeout(() => {
           if (isContextValid()) extractData();
         }, 350);
@@ -225,19 +249,16 @@ export const App = () => {
   useEffect(() => {
     if (!isContextValid() || !chrome?.tabs) return;
 
-    // Auto-extract whenever the user switches to a different tab
     const onTabActivated = () => {
       if (isContextValid()) extractData();
     };
 
-    // Auto-extract whenever the active tab completes loading/navigating
     const onTabUpdated = (tabId, changeInfo, tab) => {
       if (changeInfo.status === 'complete' && tab?.active && isContextValid()) {
         extractData();
       }
     };
 
-    // Auto-extract when an in-page SPA navigation occurs or real-time DOM mutation completes
     const onRuntimeMessage = (message) => {
       if (!isContextValid()) return;
       if (message?.action === 'spa_url_changed') {
@@ -264,7 +285,7 @@ export const App = () => {
         }
       } catch (_) {}
     };
-  }, [extractData]);
+  }, [extractData, handleExtractionResult]);
 
   // Initial load
   useEffect(() => {
@@ -283,7 +304,9 @@ export const App = () => {
   useEffect(() => {
     const onKeyDown = (e) => {
       if (e.key === 'Escape') {
-        if (historyOpen) {
+        if (infoOpen) {
+          setInfoOpen(false);
+        } else if (historyOpen) {
           setHistoryOpen(false);
         } else {
           try {
@@ -294,7 +317,33 @@ export const App = () => {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [historyOpen]);
+  }, [historyOpen, infoOpen]);
+
+  // Resume handlers
+  const handleSaveResume = async (profile) => {
+    await saveResumeProfile(profile);
+    setResumeProfile(profile);
+  };
+
+  const handleDeleteResume = async () => {
+    await deleteResumeProfile();
+    setResumeProfile(null);
+    setCustomGapPrompt(null);
+    showToast('Resume profile removed');
+  };
+
+  const handleApplyGapTailoredPrompt = async (fit) => {
+    if (!jobData || !resumeProfile) return;
+    const prompt = buildGapTailoredPrompt(jobData, fit, resumeProfile);
+    setCustomGapPrompt(prompt);
+    setPromptMode('resume');
+    try {
+      await navigator.clipboard.writeText(prompt);
+      showToast('Copied AI Gap-Tailored Prompt!');
+    } catch (_) {
+      showToast('Gap-tailored prompt ready');
+    }
+  };
 
   // Plain JD Formatter
   const buildPlainJD = (data) => {
@@ -313,6 +362,10 @@ export const App = () => {
 
   // AI Prompt Formatter (4 Modes)
   const buildAIPrompt = (data, mode) => {
+    if (customGapPrompt && mode === 'resume') {
+      return customGapPrompt;
+    }
+
     const role = data.title || 'the target role';
     const company = data.company ? ` at ${data.company}` : '';
     const jd = buildPlainJD(data);
@@ -373,7 +426,7 @@ Please help me tailor my resume for this position:
     const text = buildAIPrompt(jobData, promptMode);
     try {
       await navigator.clipboard.writeText(text);
-      showToast(`Copied ${promptMode} prompt`);
+      showToast(customGapPrompt && promptMode === 'resume' ? 'Copied Gap-Tailored Prompt' : `Copied ${promptMode} prompt`);
       return true;
     } catch {
       showToast('Failed to copy');
@@ -411,6 +464,8 @@ Please help me tailor my resume for this position:
   const handleSelectHistory = (data) => {
     setJobData(data);
     setError(null);
+    setCustomGapPrompt(null);
+    setActiveTab('job');
     setHistoryOpen(false);
     showToast('Restored from history');
   };
@@ -428,63 +483,117 @@ Please help me tailor my resume for this position:
         onToggleTheme={toggleTheme}
         onRefresh={extractData}
         onOpenHistory={() => setHistoryOpen(true)}
+        onOpenInfo={() => setInfoOpen(true)}
         onCollapse={handleCollapse}
       />
 
-      {loading && <SkeletonLoader />}
+      {/* 3 Dedicated Cupertino Tabs */}
+      <NavSegment
+        activeTab={activeTab}
+        onChangeTab={setActiveTab}
+      />
 
-      {!loading && error && (
-        <div className="empty-state">
-          <div className="empty-card">
-            <div className="empty-icon-wrap">
-              <DocMagnifyingGlassIcon size={26} color="var(--apple-blue)" />
-            </div>
-            <h2 className="empty-title">
-              {error.includes('reloaded') ? 'Extension Updated' : 'No Job Posting Detected'}
-            </h2>
-            <p className="empty-subtitle">{error}</p>
-            <div className="empty-actions">
-              <button className="btn btn-filled" onClick={extractData}>
-                <ArrowClockwiseIcon size={14} color="#FFFFFF" />
-                <span>Retry Extraction</span>
-              </button>
-              {historyItems.length > 0 && (
-                <button className="btn btn-tinted" onClick={() => setHistoryOpen(true)}>
-                  <ClockArrowIcon size={14} color="var(--apple-blue)" />
-                  <span>View Saved Clips ({historyItems.length})</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {!loading && !error && jobData && (
+      {/* ── 1. JOB DESCRIPTION TAB ── */}
+      {activeTab === 'job' && (
         <>
-          <JobCard data={jobData} />
-          <Preview text={jobData.description} />
-          <PromptSelector activeMode={promptMode} onChangeMode={setPromptMode} />
-          <ActionButtons
-            onCopyAi={handleCopyAi}
-            onCopyJd={handleCopyJd}
-            onExportMd={handleExportMd}
-          />
-          <footer className="footer-meta">
-            <span>{jobData.method || 'Auto'}</span>
-            <span>·</span>
-            <span>{jobData.time || 0}ms</span>
-            <span>·</span>
-            <span>100% Private</span>
-          </footer>
+          {loading && <SkeletonLoader />}
+
+          {!loading && error && (
+            <div className="empty-state">
+              <div className="empty-card">
+                <div className="empty-icon-wrap">
+                  <DocMagnifyingGlassIcon size={26} color="var(--apple-blue)" />
+                </div>
+                <h2 className="empty-title">
+                  {error.includes('reloaded') ? 'Extension Updated' : 'No Job Posting Detected'}
+                </h2>
+                <p className="empty-subtitle">{error}</p>
+                <div className="empty-actions">
+                  <button className="btn btn-filled" onClick={extractData}>
+                    <ArrowClockwiseIcon size={14} color="#FFFFFF" />
+                    <span>Retry Extraction</span>
+                  </button>
+                  <button className="btn btn-tinted" onClick={() => setActiveTab('resume')}>
+                    <PersonBadgeIcon size={14} color="var(--apple-blue)" />
+                    <span>{resumeProfile ? 'Manage My Resume' : 'Upload Resume'}</span>
+                  </button>
+                  {historyItems.length > 0 && (
+                    <button className="btn btn-tinted" onClick={() => setHistoryOpen(true)}>
+                      <ClockArrowIcon size={14} color="var(--apple-blue)" />
+                      <span>View Saved Clips ({historyItems.length})</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!loading && !error && jobData && (
+            <>
+              <JobCard data={jobData} />
+
+              <Preview text={jobData.description} />
+              
+              <PromptSelector
+                activeMode={promptMode}
+                onChangeMode={(mode) => {
+                  setCustomGapPrompt(null);
+                  setPromptMode(mode);
+                }}
+              />
+
+              <ActionButtons
+                onCopyAi={handleCopyAi}
+                onCopyJd={handleCopyJd}
+                onExportMd={handleExportMd}
+              />
+
+              <footer className="footer-meta">
+                <span>{jobData.method || 'Auto'}</span>
+                <span>·</span>
+                <span>{jobData.time || 0}ms</span>
+                <span>·</span>
+                <span>100% Private</span>
+              </footer>
+            </>
+          )}
         </>
       )}
 
+      {/* ── 2. ROLE FIT TAB ── */}
+      {activeTab === 'fit' && (
+        <FitAnalysisCard
+          jobData={jobData}
+          resumeProfile={resumeProfile}
+          onNavigateToResume={() => setActiveTab('resume')}
+          onApplyGapTailoredPrompt={handleApplyGapTailoredPrompt}
+          showToast={showToast}
+        />
+      )}
+
+      {/* ── 3. MY RESUME TAB ── */}
+      {activeTab === 'resume' && (
+        <ResumeView
+          resumeProfile={resumeProfile}
+          onSaveResume={handleSaveResume}
+          onDeleteResume={handleDeleteResume}
+          onSwitchToFit={() => setActiveTab('fit')}
+          showToast={showToast}
+        />
+      )}
+
+      {/* Slide-over Sheets */}
       <HistorySheet
         isOpen={historyOpen}
         items={historyItems}
         onSelect={handleSelectHistory}
         onClear={handleClearHistory}
         onClose={() => setHistoryOpen(false)}
+      />
+
+      <InfoSheet
+        isOpen={infoOpen}
+        onClose={() => setInfoOpen(false)}
       />
 
       <Toast message={toast.message} visible={toast.visible} />

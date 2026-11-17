@@ -150,17 +150,25 @@ export const BubbleQuoteIcon = ({ size = 13, color = 'currentColor' }) => (
   </svg>
 );
 
-// Chart Bar (chart.bar.xaxis - Skills Analysis prompt mode)
+// Chart Bar (chart.bar.xaxis - Skills prompt mode)
 export const ChartBarIcon = ({ size = 13, color = 'currentColor' }) => (
   <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="2.5" y1="17.5" x2="17.5" y2="17.5" />
-    <rect x="4" y="11" width="3" height="6.5" rx="0.8" />
-    <rect x="8.5" y="6" width="3" height="11.5" rx="0.8" />
-    <rect x="13" y="3" width="3" height="14.5" rx="0.8" />
+    <line x1="3" y1="16.5" x2="17" y2="16.5" />
+    <rect x="4.5" y="10" width="2.5" height="6.5" rx="0.5" />
+    <rect x="8.75" y="5.5" width="2.5" height="11" rx="0.5" />
+    <rect x="13" y="8" width="2.5" height="8.5" rx="0.5" />
   </svg>
 );
 
-// Calendar (calendar - Job posting date badge)
+// Doc on Doc (doc.on.doc - Copy prompt / raw JD)
+export const DocOnDocIcon = ({ size = 14, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="6.5" y="6.5" width="9" height="11" rx="1.5" />
+    <path d="M4.5 13.5V4.5C4.5 3.67 5.17 3 6 3H12" />
+  </svg>
+);
+
+// Calendar (calendar - Date posted badge)
 export const CalendarIcon = ({ size = 12, color = 'currentColor' }) => (
   <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="4" width="14" height="13" rx="2.5" />
@@ -210,7 +218,7 @@ export const BankNoteIcon = ({ size = 12, color = 'currentColor' }) => (
   </svg>
 );
 
-// Trash (trash - Clear History)
+// Trash (trash - Clear History / Resume)
 export const TrashIcon = ({ size = 13, color = 'currentColor' }) => (
   <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M3.5 5.5H16.5" />
@@ -236,5 +244,75 @@ export const DocMagnifyingGlassIcon = ({ size = 38, color = 'var(--text-3)' }) =
     <polyline points="14 2 14 8 20 8" />
     <circle cx="11.5" cy="14.5" r="3" />
     <line x1="13.7" y1="16.7" x2="17" y2="20" />
+  </svg>
+);
+
+// Person Badge (person.crop.circle - Resume profile tab)
+export const PersonBadgeIcon = ({ size = 15, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="10" cy="7" r="3.5" />
+    <path d="M4 17C4 13.68 6.68 11 10 11C13.32 11 16 13.68 16 17" />
+  </svg>
+);
+
+// Arrow Up Doc / Upload (arrow.up.doc - Resume upload dropzone)
+export const ArrowUpDocIcon = ({ size = 16, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 4C4 2.9 4.9 2 6 2H11L16 7V16C16 17.1 15.1 18 14 18H6C4.9 18 4 17.1 4 16V4Z" />
+    <path d="M11 2V7H16" />
+    <polyline points="7.5 12.5 10 10 12.5 12.5" />
+    <line x1="10" y1="10" x2="10" y2="15" />
+  </svg>
+);
+
+// Bolt / Lightning (bolt.fill - Instant role fit calculation)
+export const BoltIcon = ({ size = 14, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="11 2 4 11 10 11 9 18 16 9 10 9 11 2" />
+  </svg>
+);
+
+// Exclamation Triangle (exclamationmark.triangle - Missing skill gap warning)
+export const ExclamationTriangleIcon = ({ size = 13, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10 3L2 17H18L10 3Z" />
+    <line x1="10" y1="8" x2="10" y2="12" />
+    <line x1="10" y1="14.5" x2="10" y2="14.51" strokeWidth="2" />
+  </svg>
+);
+
+// Checkmark Shield (checkmark.shield - 100% private & verified fit)
+export const CheckmarkShieldIcon = ({ size = 14, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10 2.5L4 5V10C4 14.5 10 17.5 10 17.5C10 17.5 16 14.5 16 10V5L10 2.5Z" />
+    <polyline points="7.5 10 9.2 11.8 12.5 8" />
+  </svg>
+);
+
+// Graduation Cap (graduationcap - Education)
+export const GraduationCapIcon = ({ size = 13, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10 3L2 7.5L10 12L18 7.5L10 3Z" />
+    <path d="M5 9.5V14.5C5 14.5 7 16.5 10 16.5C13 16.5 15 14.5 15 14.5V9.5" />
+    <path d="M18 7.5V13" />
+  </svg>
+);
+
+// Clipboard Document (doc.on.clipboard - Job Extractor Tab)
+export const ClipboardDocIcon = ({ size = 15, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M13 3H14C15.1 3 16 3.9 16 5V16C16 17.1 15.1 18 14 18H6C4.9 18 4 17.1 4 16V5C4 3.9 4.9 3 6 3H7" />
+    <rect x="7" y="1.5" width="6" height="3" rx="1" />
+    <line x1="7" y1="8.5" x2="13" y2="8.5" />
+    <line x1="7" y1="12" x2="13" y2="12" />
+  </svg>
+);
+
+// Question Mark Circle (questionmark.circle - About / FAQ)
+export const QuestionMarkCircleIcon = ({ size = 15, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="10" cy="10" r="7.5" />
+    <path d="M7.8 7.8C8.1 7.1 8.8 6.5 9.8 6.5C11.1 6.5 12 7.3 12 8.4C12 9.5 11.2 10.1 10.3 10.6C9.9 10.8 9.7 11.2 9.7 11.6V12" />
+    <circle cx="9.75" cy="14.25" r="0.75" fill={color} stroke="none" />
   </svg>
 );

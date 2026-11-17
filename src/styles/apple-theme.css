@@ -37,19 +37,36 @@
   --apple-orange: #FF9500;
   --apple-red: #FF3B30;
 
-  --bg-app: rgba(246, 246, 248, 0.96);
+  /* Semantic High-Contrast Accessible Status Tokens (WCAG AAA) */
+  --status-success-text: #15803D;
+  --status-success-bg: rgba(52, 199, 89, 0.10);
+  --status-success-border: rgba(52, 199, 89, 0.28);
+
+  --status-warning-text: #9A4200;
+  --status-warning-bg: rgba(255, 149, 0, 0.10);
+  --status-warning-border: rgba(255, 149, 0, 0.28);
+
+  --status-info-text: #0062C4;
+  --status-info-bg: rgba(0, 113, 227, 0.09);
+  --status-info-border: rgba(0, 113, 227, 0.24);
+
+  --status-danger-text: #C41C1C;
+  --status-danger-bg: rgba(255, 59, 48, 0.09);
+  --status-danger-border: rgba(255, 59, 48, 0.25);
+
+  --bg-app: rgba(246, 246, 248, 0.98);
   --surface: #FFFFFF;
   --surface-hover: #F8F8FA;
-  --surface-secondary: #EBEBED;
-  --surface-tertiary: #F2F2F5;
+  --surface-secondary: #F0F0F3;
+  --surface-tertiary: #F7F7FA;
   
   --border: rgba(0, 0, 0, 0.08);
-  --border-strong: rgba(0, 0, 0, 0.14);
+  --border-strong: rgba(0, 0, 0, 0.13);
   --border-subtle: rgba(0, 0, 0, 0.04);
 
   --text-1: #1D1D1F;
-  --text-2: #86868B;
-  --text-3: #8E8E93;
+  --text-2: #55555B;
+  --text-3: #7C7C82;
   --text-4: #C7C7CC;
 
   --tint-blue: rgba(0, 113, 227, 0.08);
@@ -71,6 +88,23 @@
   --apple-green-gradient: linear-gradient(180deg, #30D158 0%, #249D42 100%);
   --apple-orange: #FF9F0A;
   --apple-red: #FF453A;
+
+  /* Semantic High-Contrast Accessible Status Tokens */
+  --status-success-text: #30D158;
+  --status-success-bg: rgba(48, 209, 88, 0.14);
+  --status-success-border: rgba(48, 209, 88, 0.35);
+
+  --status-warning-text: #FF9F0A;
+  --status-warning-bg: rgba(255, 159, 10, 0.14);
+  --status-warning-border: rgba(255, 159, 10, 0.35);
+
+  --status-info-text: #0A84FF;
+  --status-info-bg: rgba(10, 132, 255, 0.14);
+  --status-info-border: rgba(10, 132, 255, 0.35);
+
+  --status-danger-text: #FF453A;
+  --status-danger-bg: rgba(255, 69, 58, 0.14);
+  --status-danger-border: rgba(255, 69, 58, 0.35);
 
   --bg-app: rgba(22, 22, 24, 0.97);
   --surface: rgba(36, 36, 39, 0.88);
@@ -295,9 +329,10 @@ body {
 }
 
 .apple-badge.badge-accent {
-  background: var(--tint-green);
-  color: var(--apple-green);
-  border-color: transparent;
+  background: var(--status-success-bg);
+  color: var(--status-success-text);
+  border-color: var(--status-success-border);
+  font-weight: 600;
 }
 
 /* ── Section Labels ── */
@@ -834,4 +869,865 @@ body {
   width: 100%;
   padding: 9.5px 16px;
   font-size: 12.5px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Apple HIG Navigation Segmented Control (Cupertino Tabs)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.nav-segment-container {
+  padding: 0 14px 10px 14px;
+}
+
+.nav-segment-pill-group {
+  display: flex;
+  background: var(--surface-secondary);
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+  gap: 3px;
+  position: relative;
+}
+
+.nav-segment-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6.5px 12px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.22s var(--ease-apple);
+  position: relative;
+  user-select: none;
+}
+
+.nav-segment-btn:hover {
+  color: var(--text-1);
+}
+
+.nav-segment-btn.active {
+  background: var(--surface);
+  color: var(--text-1);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Apple HIG Role Fitness Analysis Card
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Fitness View Wrapper & Target Role Banner */
+.fit-view-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 14px 18px 14px;
+}
+
+.fit-target-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 14px;
+}
+
+.fit-banner-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-2);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.fit-target-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.2px;
+  line-height: 1.32;
+}
+
+.fit-target-company {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--apple-blue);
+}
+
+.fit-analysis-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid var(--border-strong);
+  position: relative;
+  overflow: hidden;
+}
+
+.fit-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fit-header-left {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.fit-header-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.2px;
+}
+
+.fit-score-num {
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.fit-score-label {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.fit-badge-strong,
+.fit-badge-good,
+.fit-badge-moderate,
+.fit-badge-stretch {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  padding: 3.5px 10px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.fit-badge-strong {
+  background: var(--status-success-bg);
+  color: var(--status-success-text);
+  border: 1px solid var(--status-success-border);
+}
+
+.fit-badge-good {
+  background: var(--status-info-bg);
+  color: var(--status-info-text);
+  border: 1px solid var(--status-info-border);
+}
+
+.fit-badge-moderate {
+  background: var(--status-warning-bg);
+  color: var(--status-warning-text);
+  border: 1px solid var(--status-warning-border);
+}
+
+.fit-badge-stretch {
+  background: var(--status-danger-bg);
+  color: var(--status-danger-text);
+  border: 1px solid var(--status-danger-border);
+}
+
+/* Fitness Progress Track */
+.fit-progress-track {
+  width: 100%;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-tertiary);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  position: relative;
+}
+
+.fit-progress-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.6s var(--ease-spring);
+}
+
+.fit-tier-description {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.45;
+}
+
+/* Analysis Bullet Points Section */
+.fit-analysis-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 11px 13px;
+  background: var(--surface-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.fit-section-heading {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.fit-analysis-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+}
+
+.fit-analysis-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-1);
+}
+
+.fit-bullet {
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.4;
+  user-select: none;
+}
+
+.fit-item-text {
+  flex: 1;
+  color: var(--text-1);
+}
+
+.fit-item-text strong {
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+.fit-item-text .text-warning {
+  color: var(--status-warning-text);
+  font-weight: 600;
+}
+
+.fit-item-text .text-success {
+  color: var(--status-success-text);
+  font-weight: 600;
+}
+
+.fit-item-text .text-neutral {
+  color: var(--status-info-text);
+  font-weight: 600;
+}
+
+/* Skills Sections */
+.fit-skills-section {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.fit-skills-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fit-skills-title {
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-2);
+  letter-spacing: -0.1px;
+}
+
+.skills-pill-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.skill-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 550;
+  letter-spacing: -0.1px;
+  transition: all 0.16s var(--ease-apple);
+}
+
+.skill-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.10);
+}
+
+.chip-success {
+  background: var(--status-success-bg);
+  color: var(--status-success-text);
+  border: 1px solid var(--status-success-border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.chip-warning {
+  background: var(--status-warning-bg);
+  color: var(--status-warning-text);
+  border: 1px solid var(--status-warning-border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.chip-neutral {
+  background: var(--surface-tertiary);
+  color: var(--text-1);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.empty-inline-text {
+  font-size: 11px;
+  color: var(--text-3);
+  font-style: italic;
+}
+
+.fit-action-row {
+  margin-top: 4px;
+}
+
+.fit-tailor-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8.5px 14px;
+  background: var(--tint-blue);
+  color: var(--apple-blue);
+  border: 1px solid rgba(0, 113, 227, 0.22);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 3px rgba(0, 113, 227, 0.08);
+  cursor: pointer;
+  transition: all 0.16s var(--ease-apple);
+}
+
+.fit-tailor-btn:hover {
+  background: var(--tint-blue-hover);
+  border-color: rgba(0, 113, 227, 0.35);
+  transform: translateY(-0.5px);
+}
+
+.fit-tailor-btn:active {
+  transform: scale(0.98);
+}
+
+/* Callout Card (When No Resume Uploaded) */
+.fit-callout-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-secondary) 100%);
+  border: 1px dashed var(--border-strong);
+}
+
+.fit-callout-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.fit-callout-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--tint-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fit-callout-content {
+  flex: 1;
+}
+
+.fit-callout-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 3px;
+}
+
+.fit-callout-subtitle {
+  font-size: 11.5px;
+  color: var(--text-2);
+  line-height: 1.42;
+}
+
+.fit-callout-btn {
+  align-self: flex-start;
+  padding: 6.5px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Apple HIG My Resume View & Dropzone
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.resume-view-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 14px 18px 14px;
+}
+
+.resume-active-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.resume-profile-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.resume-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.resume-meta-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.candidate-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.3px;
+}
+
+.resume-file-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-2);
+}
+
+.resume-file-tag .file-name {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resume-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 9px 10px;
+  background: var(--surface-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.resume-metric-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2px;
+}
+
+.resume-metric-tile .metric-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.resume-metric-tile .metric-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+.resume-details-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.resume-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: var(--text-2);
+}
+
+.resume-detail-row .detail-text {
+  font-weight: 500;
+  color: var(--text-1);
+}
+
+/* Resume Skills Card */
+.resume-skills-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-subhead-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-subhead-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  letter-spacing: -0.15px;
+}
+
+.card-subhead-badge {
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+/* Resume Actions Row */
+.resume-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.btn-icon-only {
+  padding: 8.5px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-danger {
+  background: rgba(255, 59, 48, 0.08);
+  border: 1px solid rgba(255, 59, 48, 0.2);
+  color: var(--apple-red);
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background: rgba(255, 59, 48, 0.16);
+}
+
+/* Accordion for Raw Text */
+.resume-accordion {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.resume-accordion-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--surface-secondary);
+  border: none;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.resume-accordion-toggle:hover {
+  color: var(--text-1);
+}
+
+.toggle-chevron {
+  font-size: 9px;
+  color: var(--text-3);
+}
+
+.resume-raw-preview {
+  padding: 10px 12px;
+  background: var(--surface);
+  max-height: 180px;
+  overflow-y: auto;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.resume-raw-preview pre {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Mono", Menlo, monospace;
+  font-size: 10.5px;
+  color: var(--text-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.45;
+}
+
+/* ── Dropzone & Upload Styles ── */
+.resume-upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.resume-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 16px;
+  border-radius: var(--radius-lg);
+  border: 2px dashed var(--border-strong);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  transition: all 0.25s var(--ease-apple);
+  gap: 8px;
+}
+
+.resume-dropzone:hover,
+.resume-dropzone.dragging {
+  border-color: var(--apple-blue);
+  background: var(--surface-hover);
+  transform: scale(1.01);
+}
+
+.resume-dropzone.processing {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.dropzone-icon-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--tint-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.dropzone-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.2px;
+}
+
+.dropzone-subtitle {
+  font-size: 11.5px;
+  color: var(--text-2);
+  max-width: 240px;
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.dropzone-btn {
+  font-size: 12px;
+  padding: 7px 16px;
+}
+
+/* Paste option divider */
+.paste-option-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 2px 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.divider-text {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-3);
+  letter-spacing: 0.5px;
+}
+
+.w-full {
+  width: 100%;
+}
+
+/* Paste text form */
+.paste-text-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--surface);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+}
+
+.paste-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.paste-form-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.btn-icon-subtle {
+  background: none;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 4px;
+}
+
+.btn-icon-subtle:hover {
+  color: var(--text-1);
+}
+
+.paste-textarea {
+  width: 100%;
+  font-family: inherit;
+  font-size: 11.5px;
+  color: var(--text-1);
+  background: var(--surface-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  resize: vertical;
+  line-height: 1.4;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.paste-textarea:focus {
+  border-color: var(--apple-blue);
+}
+
+.paste-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Apple HIG About & Privacy Info Sheet
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.info-sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  overflow-y: auto;
+  max-height: calc(100vh - 120px);
+}
+
+.info-item-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+}
+
+.info-item-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-item-icon-wrap.icon-shield {
+  background: var(--status-success-bg);
+}
+
+.info-item-icon-wrap.icon-bolt {
+  background: var(--status-info-bg);
+}
+
+.info-item-icon-wrap.icon-sparkles {
+  background: var(--status-warning-bg);
+}
+
+.info-item-icon-wrap.icon-keys {
+  background: var(--surface-secondary);
+}
+
+.info-item-content {
+  flex: 1;
+}
+
+.info-item-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 3px;
+}
+
+.info-item-desc {
+  font-size: 11px;
+  color: var(--text-2);
+  line-height: 1.45;
+}
+
+.info-kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--surface-secondary);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  color: var(--text-1);
 }

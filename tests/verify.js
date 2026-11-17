@@ -5,6 +5,9 @@
 import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
+import { extractSkillsFromText } from '../src/utils/skillTaxonomy.js';
+import { parseResume } from '../src/utils/resumeParser.js';
+import { calculateFit, buildGapTailoredPrompt, extractJdRequiredExperience } from '../src/utils/fitEngine.js';
 
 let passed = 0;
 let total = 0;
@@ -60,6 +63,7 @@ test('React app built into dist/sidebar.html and dist/assets/', () => {
   assert.ok(fs.existsSync(path.join('dist', 'sidebar.html')), 'Missing dist/sidebar.html');
   assert.ok(fs.existsSync(path.join('dist', 'assets', 'sidebar.js')), 'Missing dist/assets/sidebar.js');
   assert.ok(fs.existsSync(path.join('dist', 'assets', 'sidebar.css')), 'Missing dist/assets/sidebar.css');
+  assert.ok(fs.existsSync(path.join('dist', 'assets', 'pdf.worker.min.mjs')), 'Missing dist/assets/pdf.worker.min.mjs');
 });
 
 // 4. Platform URL Matcher Check
@@ -141,14 +145,13 @@ test('content.js filters non-job domains (Gmail, GitHub) and qualifies heuristic
   assert.ok(content.includes('JOB_HEURISTIC_SIGNALS'), 'Defines semantic job signals');
   assert.ok(content.includes('countJobSignals'), 'Counts semantic job signals');
 
-  // Verify non-job regexes (including AI assistants and webmail)
   const nonJobUrls = [
     'https://mail.google.com/mail/u/0/#inbox',
     'https://github.com/VSat08/jd-extractor',
     'https://gemini.google.com/app/31a9598165e73910',
     'https://chatgpt.com/c/12345',
     'https://claude.ai/chat/67890',
-    'https://www.youtube.com/watch?v=123',
+    'https://youtube.com/watch?v=123',
     'https://twitter.com/home'
   ];
   const NON_JOB_REGEX = [
@@ -163,6 +166,110 @@ test('content.js filters non-job domains (Gmail, GitHub) and qualifies heuristic
   nonJobUrls.forEach((url, i) => {
     assert.ok(NON_JOB_REGEX[i].test(url), `Failed detecting non-job URL: ${url}`);
   });
+});
+
+// 9. Industry Skill Taxonomy & Alias Matcher Check
+test('skillTaxonomy extracts normalized skills with alias handling', () => {
+  const sample = 'Senior React.js engineer with TypeScript, k8s, AWS (S3, EC2), and postgresql background.';
+  const skills = extractSkillsFromText(sample);
+  assert.ok(skills.includes('React'), 'Identified React from React.js');
+  assert.ok(skills.includes('TypeScript'), 'Identified TypeScript');
+  assert.ok(skills.includes('Kubernetes'), 'Identified Kubernetes from k8s');
+  assert.ok(skills.includes('AWS'), 'Identified AWS from S3 / EC2');
+  assert.ok(skills.includes('PostgreSQL'), 'Identified PostgreSQL from postgresql');
+});
+
+// 10. Client-Side Resume Parser Check
+test('resumeParser transforms raw text into structured profile', () => {
+  const rawText = `
+    Alex Rivera
+    alex.rivera@example.com | +1 555-019-2834 | github.com/arivera | linkedin.com/in/alex-rivera
+    Full Stack Developer with 4+ years of experience designing robust web systems.
+
+    Education:
+    Bachelor of Science in Computer Science
+
+    Core Competencies:
+    JavaScript, TypeScript, React, Node.js, Express.js, Docker, PostgreSQL, GraphQL
+  `;
+  const parsed = parseResume(rawText, 'Alex_Rivera_Resume.pdf', 24500);
+  assert.strictEqual(parsed.candidateName, 'Alex Rivera');
+  assert.strictEqual(parsed.email, 'alex.rivera@example.com');
+  assert.strictEqual(parsed.phone, '+1 555-019-2834');
+  assert.ok(parsed.links.some(l => l.includes('github.com/arivera')));
+  assert.strictEqual(parsed.experienceYears, 4);
+  assert.ok(parsed.education.toLowerCase().includes('computer science'));
+  assert.ok(parsed.skills.includes('React'));
+  assert.ok(parsed.skills.includes('TypeScript'));
+  assert.ok(parsed.skills.includes('Docker'));
+  assert.ok(parsed.skills.includes('PostgreSQL'));
+});
+
+// 11. Role Fitness Engine & Gap Analysis Check
+test('fitEngine accurately scores alignment, detects gaps, and generates tailored prompt', () => {
+  const resume = {
+    candidateName: 'Alex Rivera',
+    experienceYears: 4,
+    skills: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Docker'],
+    roles: ['Full Stack Developer'],
+  };
+
+  const jd = {
+    title: 'Full Stack Engineer',
+    company: 'Stripe',
+    description: `
+      Requirements:
+      - 3+ years experience with React, TypeScript, and Node.js.
+      - Experience with PostgreSQL and Docker.
+      - Strong knowledge of Kubernetes and GraphQL.
+    `
+  };
+
+  const fit = calculateFit(jd, resume);
+  assert.ok(fit.score >= 60, `Score expected >= 60, got ${fit.score}`);
+  assert.strictEqual(fit.jdExpRequired, 3);
+  assert.strictEqual(fit.expStatus, 'exceeds_or_meets');
+  assert.ok(fit.matchedSkills.includes('React'));
+  assert.ok(fit.matchedSkills.includes('TypeScript'));
+  assert.ok(fit.matchedSkills.includes('Docker'));
+  assert.ok(fit.missingSkills.includes('Kubernetes'));
+  assert.ok(fit.missingSkills.includes('GraphQL'));
+
+  const prompt = buildGapTailoredPrompt(jd, fit, resume);
+  assert.ok(prompt.includes('Stripe'), 'Prompt includes company');
+  assert.ok(prompt.includes('Kubernetes'), 'Prompt addresses missing Kubernetes');
+  assert.ok(prompt.includes('GraphQL'), 'Prompt addresses missing GraphQL');
+
+  // Verify JD experience extraction handles both ranges and plus notation accurately
+  const rangeJdExp = extractJdRequiredExperience('4-7 years of strong hands-on experience in JAVA( 8 +)');
+  assert.strictEqual(rangeJdExp.displayText, '4–7 yrs', 'Deloitte range parsed as 4–7 yrs');
+  assert.strictEqual(rangeJdExp.minYears, 4, 'Lower bound is 4');
+  assert.strictEqual(rangeJdExp.maxYears, 7, 'Upper bound is 7');
+
+  const plusJdExp = extractJdRequiredExperience('Requires 2+ years of experience');
+  assert.strictEqual(plusJdExp.displayText, '2+ yrs', '2+ years parsed correctly');
+  assert.strictEqual(plusJdExp.minYears, 2);
+});
+
+// 12. App Navigation & Resume View Components Integration Check
+test('NavSegment, ResumeView, FitAnalysisCard, and InfoSheet are integrated into App.jsx and CSS', () => {
+  const app = fs.readFileSync('src/App.jsx', 'utf8');
+  assert.ok(app.includes('NavSegment'), 'NavSegment in App.jsx');
+  assert.ok(app.includes('ResumeView'), 'ResumeView in App.jsx');
+  assert.ok(app.includes('FitAnalysisCard'), 'FitAnalysisCard in App.jsx');
+  assert.ok(app.includes('InfoSheet'), 'InfoSheet in App.jsx');
+  assert.ok(app.includes('saveResumeProfile'), 'saveResumeProfile in App.jsx');
+
+  const css = fs.readFileSync('src/styles/apple-theme.css', 'utf8');
+  assert.ok(css.includes('.nav-segment-container'), 'NavSegment CSS present');
+  assert.ok(css.includes('.fit-analysis-card'), 'FitAnalysisCard CSS present');
+  assert.ok(css.includes('.resume-dropzone'), 'Resume dropzone CSS present');
+  assert.ok(css.includes('.skill-chip'), 'Skill chip CSS present');
+  assert.ok(css.includes('.info-sheet-body'), 'InfoSheet CSS present');
+
+  // Verify education regex does not match "Hibernate" as "bernate"
+  const testParsed = parseResume('Experience with Java, Hibernate, and Spring Boot.');
+  assert.strictEqual(testParsed.education, 'Not explicitly listed', 'Hibernate is not falsely matched as degree');
 });
 
 console.log(`\nResults: ${passed}/${total} tests passed.\n`);
