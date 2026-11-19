@@ -14,6 +14,7 @@ import { Toast } from './components/Toast';
 import { DocMagnifyingGlassIcon, ArrowClockwiseIcon, ClockArrowIcon, BoltIcon, PersonBadgeIcon } from './components/Icons';
 import { getResumeProfile, saveResumeProfile, deleteResumeProfile } from './utils/storage';
 import { buildGapTailoredPrompt } from './utils/fitEngine';
+import { formatDatePosted, formatEmploymentType, formatSalary } from './utils/formatters';
 
 // Helper to verify extension context is alive (prevents "Extension context invalidated" errors after reloads)
 const isContextValid = () => {
@@ -355,8 +356,12 @@ export const App = () => {
     const meta = [];
     if (data.company)  meta.push(`**Company:** ${data.company}`);
     if (data.location) meta.push(`**Location:** ${data.location}`);
-    if (data.type)     meta.push(`**Type:** ${data.type}`);
-    if (data.salary)   meta.push(`**Salary:** ${data.salary}`);
+    const displayType = formatEmploymentType(data.type);
+    if (displayType)   meta.push(`**Type:** ${displayType}`);
+    const displaySalary = formatSalary(data.salary);
+    if (displaySalary) meta.push(`**Salary:** ${displaySalary}`);
+    const displayDate = formatDatePosted(data.datePosted);
+    if (displayDate)   meta.push(`**Date Posted:** ${displayDate}`);
     if (meta.length)   parts.push(meta.join('\n'));
     parts.push('---');
     parts.push(data.description || '');

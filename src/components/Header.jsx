@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  DocTextIcon,
+  BrandLogo,
   SunMaxIcon,
   MoonIcon,
   ArrowClockwiseIcon,
@@ -20,9 +20,7 @@ export const Header = ({
   return (
     <header className="header">
       <div className="header-brand">
-        <div className="brand-icon-wrap">
-          <DocTextIcon size={14} color="#FFFFFF" />
-        </div>
+        <BrandLogo size={26} />
         <h1 className="app-title">JD Extractor</h1>
         <span className="version-pill">v1.0.0</span>
       </div>

@@ -1,7 +1,7 @@
 {
   "name": "jd-extractor",
   "version": "1.0.0",
-  "description": "**An Apple-inspired browser extension that instantly extracts clean, structured job descriptions from any job portal — 100% private, zero API keys, no LLM cost, and formatted for AI chatbots.**",
+  "description": "Instant Job Description Extractor & ATS Resume Matcher. 1-click clean job extraction, 100% on-device deterministic ATS scoring against 600+ skills, and AI prompt tailoring with zero cloud fees.",
   "main": "background.js",
   "directories": {
     "test": "tests"

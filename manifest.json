@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "JD Extractor",
   "version": "1.0.0",
-  "description": "Apple-styled native browser side panel that extracts clean job descriptions for AI chatbots.",
+  "description": "1-click job description extractor & on-device ATS resume matcher. Extract clean JDs from LinkedIn, score role fit, and tailor AI prompts.",
   "permissions": [
     "sidePanel",
     "activeTab",
@@ -27,12 +27,14 @@
     "default_title": "Open JD Extractor Side Panel (Ctrl+Shift+J)",
     "default_icon": {
       "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     }
   },
   "icons": {
     "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
@@ -52,7 +54,8 @@
     {
       "resources": [
         "dist/sidebar.html",
-        "dist/assets/*"
+        "dist/assets/*",
+        "icons/*"
       ],
       "matches": ["<all_urls>"]
     }

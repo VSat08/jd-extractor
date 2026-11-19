@@ -8,6 +8,7 @@ import assert from 'assert';
 import { extractSkillsFromText } from '../src/utils/skillTaxonomy.js';
 import { parseResume } from '../src/utils/resumeParser.js';
 import { calculateFit, buildGapTailoredPrompt, extractJdRequiredExperience } from '../src/utils/fitEngine.js';
+import { formatDatePosted, formatEmploymentType, formatSalary } from '../src/utils/formatters.js';
 
 let passed = 0;
 let total = 0;
@@ -268,10 +269,53 @@ test('NavSegment, ResumeView, FitAnalysisCard, and InfoSheet are integrated into
   assert.ok(css.includes('.resume-dropzone'), 'Resume dropzone CSS present');
   assert.ok(css.includes('.skill-chip'), 'Skill chip CSS present');
   assert.ok(css.includes('.info-sheet-body'), 'InfoSheet CSS present');
+  assert.ok(css.includes('.faq-hero-card'), 'FAQ hero card CSS present');
+  assert.ok(css.includes('.faq-accordion-group'), 'FAQ accordion group CSS present');
 
   // Verify education regex does not match "Hibernate" as "bernate"
   const testParsed = parseResume('Experience with Java, Hibernate, and Spring Boot.');
   assert.strictEqual(testParsed.education, 'Not explicitly listed', 'Hibernate is not falsely matched as degree');
+});
+
+// 13. Rich Markdown Renderer & Dual View Mode Check
+test('MarkdownRenderer, Cupertino toggle [Formatted | Raw], and styles are integrated', () => {
+  const preview = fs.readFileSync('src/components/Preview.jsx', 'utf8');
+  assert.ok(preview.includes('renderMarkdownBlocks'), 'renderMarkdownBlocks imported in Preview.jsx');
+  assert.ok(preview.includes('preview-toggle-group'), 'Cupertino toggle group present');
+  assert.ok(preview.includes('formatted'), 'Formatted mode supported');
+  assert.ok(preview.includes('raw'), 'Raw mode supported');
+
+  const mdRenderer = fs.readFileSync('src/utils/markdownRenderer.jsx', 'utf8');
+  assert.ok(mdRenderer.includes('parseMarkdownBlocks'), 'parseMarkdownBlocks defined');
+  assert.ok(mdRenderer.includes('renderInlineMarkdown'), 'renderInlineMarkdown defined');
+
+  const css = fs.readFileSync('src/styles/apple-theme.css', 'utf8');
+  assert.ok(css.includes('.preview-toggle-group'), 'preview-toggle-group CSS present');
+  assert.ok(css.includes('.preview-markdown-content'), 'preview-markdown-content CSS present');
+  assert.ok(css.includes('.preview-heading-2'), 'preview-heading-2 CSS present');
+  assert.ok(css.includes('.preview-list'), 'preview-list CSS present');
+});
+
+// 14. Job Metadata Formatters (Date, Type, Salary) Check
+test('Job metadata formatters cleanly convert raw ISO dates, enum types, and salaries', () => {
+  // Date format checks
+  assert.strictEqual(formatDatePosted('2022-08-23T15:38:17.408Z'), 'Aug 23, 2022', 'ISO date formatted to Month Day, Year');
+  assert.strictEqual(formatDatePosted('2024-03-15'), 'Mar 15, 2024', 'Short ISO date formatted');
+  assert.strictEqual(formatDatePosted('Posted 3 days ago'), '3 days ago', 'Relative date cleaned');
+  assert.strictEqual(formatDatePosted('1 week ago'), '1 week ago', 'Relative week preserved');
+  assert.strictEqual(formatDatePosted('· 2 weeks ago'), '2 weeks ago', 'Bullet trimmed');
+
+  // Employment type format checks
+  assert.strictEqual(formatEmploymentType('FULL_TIME'), 'Full-time', 'FULL_TIME converted to Full-time');
+  assert.strictEqual(formatEmploymentType('PART_TIME'), 'Part-time', 'PART_TIME converted to Part-time');
+  assert.strictEqual(formatEmploymentType('CONTRACTOR'), 'Contract', 'CONTRACTOR converted to Contract');
+  assert.strictEqual(formatEmploymentType('FULL_TIME, CONTRACTOR'), 'Full-time, Contract', 'Multiple types converted');
+  assert.strictEqual(formatEmploymentType(['FULL_TIME', 'REMOTE']), 'Full-time, Remote', 'Array of types converted');
+
+  // JobCard integration check
+  const jobCard = fs.readFileSync('src/components/JobCard.jsx', 'utf8');
+  assert.ok(jobCard.includes('formatDatePosted'), 'formatDatePosted used in JobCard.jsx');
+  assert.ok(jobCard.includes('formatEmploymentType'), 'formatEmploymentType used in JobCard.jsx');
 });
 
 console.log(`\nResults: ${passed}/${total} tests passed.\n`);

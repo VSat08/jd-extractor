@@ -553,17 +553,58 @@
     const s = job.baseSalary || job.estimatedSalary;
     if (s && s.value) {
       const v = s.value;
-      const cur = s.currency || '';
-      salary = (v.minValue && v.maxValue) ? `${cur} ${Number(v.minValue).toLocaleString()} - ${Number(v.maxValue).toLocaleString()}` : `${cur} ${v.value || v.minValue || ''}`;
+      let cur = s.currency || '';
+      if (cur === 'USD') cur = '$';
+      else if (cur === 'EUR') cur = '€';
+      else if (cur === 'GBP') cur = '£';
+      
+      const unit = v.unitText ? (
+        /year|annual/i.test(v.unitText) ? '/yr' :
+        /month/i.test(v.unitText) ? '/mo' :
+        /hour/i.test(v.unitText) ? '/hr' :
+        `/${v.unitText.toLowerCase()}`
+      ) : '';
+
+      salary = (v.minValue && v.maxValue) 
+        ? `${cur} ${Number(v.minValue).toLocaleString()} - ${Number(v.maxValue).toLocaleString()}${unit}` 
+        : `${cur} ${v.value || v.minValue || ''}${unit}`;
+    }
+
+    // Format clean employment type
+    const rawType = Array.isArray(job.employmentType) ? job.employmentType.join(', ') : (job.employmentType || '');
+    const cleanType = rawType.split(/[,|/]+/).map((t) => {
+      const k = t.trim().toLowerCase().replace(/[\s-]+/g, '_');
+      if (k === 'full_time' || k === 'fulltime') return 'Full-time';
+      if (k === 'part_time' || k === 'parttime') return 'Part-time';
+      if (k === 'contract' || k === 'contractor') return 'Contract';
+      if (k === 'intern' || k === 'internship') return 'Internship';
+      if (k === 'temporary' || k === 'temp') return 'Temporary';
+      if (k === 'remote' || k === 'telecommute') return 'Remote';
+      if (k === 'hybrid') return 'Hybrid';
+      if (k === 'on_site' || k === 'onsite') return 'On-site';
+      return t.trim().replace(/_/g, ' ').replace(/\b([a-z])/gi, (_, c) => c.toUpperCase());
+    }).filter(Boolean).join(', ');
+
+    // Format clean date posted
+    let cleanDate = (job.datePosted || '').trim();
+    if (cleanDate && !/ago\b|today|yesterday/i.test(cleanDate)) {
+      const parsed = new Date(cleanDate);
+      if (!isNaN(parsed.getTime())) {
+        const year = parsed.getFullYear();
+        if (year >= 2000 && year <= 2099) {
+          const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          cleanDate = `${months[parsed.getMonth()]} ${parsed.getDate()}, ${year}`;
+        }
+      }
     }
 
     return {
       title,
       company,
       location,
-      type: Array.isArray(job.employmentType) ? job.employmentType.join(', ') : (job.employmentType || ''),
+      type: cleanType || rawType,
       salary: salary.trim(),
-      datePosted: job.datePosted || '',
+      datePosted: cleanDate,
       description: desc,
       method: 'JSON-LD',
     };

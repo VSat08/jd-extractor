@@ -6,9 +6,14 @@ import {
   CalendarIcon,
   BankNoteIcon,
 } from './Icons';
+import { formatDatePosted, formatEmploymentType, formatSalary } from '../utils/formatters';
 
 export const JobCard = ({ data }) => {
   if (!data) return null;
+
+  const displayType = formatEmploymentType(data.type);
+  const displayDate = formatDatePosted(data.datePosted);
+  const displaySalary = formatSalary(data.salary);
 
   return (
     <div className="apple-card">
@@ -21,7 +26,7 @@ export const JobCard = ({ data }) => {
         </div>
       )}
 
-      {(data.location || data.type || data.datePosted || data.salary) && (
+      {(data.location || displayType || displayDate || displaySalary) && (
         <div className="badge-row">
           {data.location && (
             <span className="apple-badge">
@@ -30,24 +35,24 @@ export const JobCard = ({ data }) => {
             </span>
           )}
 
-          {data.type && (
+          {displayType && (
             <span className="apple-badge badge-neutral">
               <BriefcaseIcon size={11} color="currentColor" />
-              <span>{data.type}</span>
+              <span>{displayType}</span>
             </span>
           )}
 
-          {data.datePosted && (
+          {displayDate && (
             <span className="apple-badge badge-neutral">
               <CalendarIcon size={11} color="currentColor" />
-              <span>{data.datePosted}</span>
+              <span>{displayDate}</span>
             </span>
           )}
 
-          {data.salary && (
+          {displaySalary && (
             <span className="apple-badge badge-accent">
               <BankNoteIcon size={11} color="currentColor" />
-              <span>{data.salary}</span>
+              <span>{displaySalary}</span>
             </span>
           )}
         </div>

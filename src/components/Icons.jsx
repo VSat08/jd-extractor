@@ -1,10 +1,75 @@
 import React from 'react';
 
 /**
- * Apple SF Symbol Vector Glyphs
+ * Apple SF Symbol Vector Glyphs & Official Brand Identity
  * Standardized to 20x20 viewBox, 1.5px stroke, round linecaps and joins
  * Strictly NO emojis - 100% vector SVG icons matching Cupertino HIG.
  */
+
+// Official Brand Logo Component (Scalable Apple Squircle Vector with Dual-Sheet & Verified Match)
+export const BrandLogo = ({ size = 26, className = '' }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 1024 1024"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    style={{ display: 'block', borderRadius: `${Math.round(size * 0.225)}px`, flexShrink: 0 }}
+  >
+    <defs>
+      <linearGradient id="jdBrandBg" x1="0" y1="0" x2="0" y2="1024" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#007AFF" />
+        <stop offset="100%" stopColor="#013CA8" />
+      </linearGradient>
+      <filter id="jdCardShadow" x="250" y="180" width="600" height="720" filterUnits="userSpaceOnUse">
+        <feDropShadow dx="0" dy="20" stdDeviation="28" floodColor="#001041" floodOpacity="0.45" />
+      </filter>
+      <filter id="jdBadgeShadow" x="150" y="520" width="350" height="350" filterUnits="userSpaceOnUse">
+        <feDropShadow dx="0" dy="12" stdDeviation="20" floodColor="#001850" floodOpacity="0.5" />
+      </filter>
+    </defs>
+
+    {/* Apple Squircle Background */}
+    <rect width="1024" height="1024" rx="230" fill="url(#jdBrandBg)" />
+    
+    {/* Apple Specular Bezel / Glass Rim */}
+    <rect x="3" y="3" width="1018" height="1018" rx="228" stroke="rgba(255,255,255,0.2)" strokeWidth="6" fill="none" />
+
+    {/* Back Sheet: Resume (Frosted Glass Card) */}
+    <rect x="215" y="174" width="492" height="614" rx="56" fill="rgba(255,255,255,0.24)" stroke="rgba(255,255,255,0.42)" strokeWidth="5" />
+    <rect x="276" y="246" width="174" height="46" rx="16" fill="rgba(255,255,255,0.48)" />
+    <rect x="276" y="348" width="317" height="32" rx="14" fill="rgba(255,255,255,0.32)" />
+    <rect x="276" y="420" width="317" height="32" rx="14" fill="rgba(255,255,255,0.32)" />
+    <rect x="276" y="492" width="220" height="32" rx="14" fill="rgba(255,255,255,0.32)" />
+
+    {/* Front Sheet: Job Description (Solid White Card with Ambient Shadow) */}
+    <g filter="url(#jdCardShadow)">
+      <rect x="338" y="235" width="492" height="614" rx="56" fill="#FFFFFF" />
+    </g>
+    
+    {/* Front Sheet Category Pill (Apple Blue) */}
+    <rect x="399" y="317" width="195" height="56" rx="18" fill="#0071E3" />
+    
+    {/* Front Sheet Structured Lines */}
+    <rect x="399" y="430" width="369" height="36" rx="16" fill="#D7E0EE" />
+    <rect x="399" y="502" width="328" height="36" rx="16" fill="#D7E0EE" />
+    <rect x="399" y="574" width="246" height="36" rx="16" fill="#D7E0EE" />
+
+    {/* Verified ATS Match & Extraction Badge */}
+    <g filter="url(#jdBadgeShadow)">
+      <circle cx="389" cy="737" r="138" fill="#0071E3" stroke="#FFFFFF" strokeWidth="14" />
+      <path
+        d="M331 735 L378 786 L450 690"
+        stroke="#FFFFFF"
+        strokeWidth="28"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </g>
+  </svg>
+);
 
 // App / Document icon (doc.text.fill style)
 export const DocTextIcon = ({ size = 18, color = 'currentColor' }) => (
@@ -65,6 +130,13 @@ export const ChevronRightIcon = ({ size = 16, color = 'currentColor' }) => (
 export const ChevronRightSmallIcon = ({ size = 13, color = 'currentColor' }) => (
   <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="8 5 13 10 8 15" />
+  </svg>
+);
+
+// Small Chevron Down for accordion rows (disclosure indicator)
+export const ChevronDownSmallIcon = ({ size = 13, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="5 8 10 13 15 8" />
   </svg>
 );
 
