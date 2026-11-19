@@ -11,7 +11,16 @@ import { HistorySheet } from './components/HistorySheet';
 import { InfoSheet } from './components/InfoSheet';
 import { SkeletonLoader, FitSkeletonLoader } from './components/SkeletonLoader';
 import { Toast } from './components/Toast';
-import { DocMagnifyingGlassIcon, ArrowClockwiseIcon, ClockArrowIcon, BoltIcon, PersonBadgeIcon } from './components/Icons';
+import { SplashScreen } from './components/SplashScreen';
+import {
+  DocMagnifyingGlassIcon,
+  ArrowClockwiseIcon,
+  ClockArrowIcon,
+  BoltIcon,
+  PersonBadgeIcon,
+  BrandLogo,
+  ArrowUpRightIcon,
+} from './components/Icons';
 import { getResumeProfile, saveResumeProfile, deleteResumeProfile } from './utils/storage';
 import { buildGapTailoredPrompt } from './utils/fitEngine';
 import { formatDatePosted, formatEmploymentType, formatSalary } from './utils/formatters';
@@ -32,6 +41,9 @@ export const App = () => {
     if (saved === 'dark' || saved === 'light') return saved;
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
+
+  // Mobile-style launch splash screen: displays cleanly when side panel is opened
+  const [showSplash, setShowSplash] = useState(true);
 
   const [activeTab, setActiveTab] = useState('job'); // 'job' | 'fit' | 'resume'
   const [loading, setLoading] = useState(true);
@@ -484,6 +496,18 @@ Please help me tailor my resume for this position:
     showToast('History cleared');
   };
 
+  const handleOpenLinkedInJobs = () => {
+    try {
+      if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
+        chrome.tabs.create({ url: 'https://www.linkedin.com/jobs/' });
+      } else {
+        window.open('https://www.linkedin.com/jobs/', '_blank');
+      }
+    } catch (_) {
+      window.open('https://www.linkedin.com/jobs/', '_blank');
+    }
+  };
+
   return (
     <div className="app-container">
       <Header
@@ -501,39 +525,81 @@ Please help me tailor my resume for this position:
         onChangeTab={setActiveTab}
       />
 
-      {/* ── 1. JOB DESCRIPTION TAB ── */}
+      {/* ── 1. JOB DETAILS TAB ── */}
       {activeTab === 'job' && (
         <>
           {loading && <SkeletonLoader />}
 
           {!loading && error && (
-            <div className="empty-state">
-              <div className="empty-card">
-                <div className="empty-icon-wrap">
-                  <DocMagnifyingGlassIcon size={26} color="var(--apple-blue)" />
+            error.includes('reloaded') ? (
+              <div className="empty-state">
+                <div className="empty-card">
+                  <div className="empty-icon-wrap">
+                    <DocMagnifyingGlassIcon size={26} color="var(--apple-blue)" />
+                  </div>
+                  <h2 className="empty-title">Extension Updated</h2>
+                  <p className="empty-subtitle">{error}</p>
+                  <div className="empty-actions">
+                    <button className="btn btn-filled" onClick={extractData}>
+                      <ArrowClockwiseIcon size={14} color="#FFFFFF" />
+                      <span>Retry Extraction</span>
+                    </button>
+                  </div>
                 </div>
-                <h2 className="empty-title">
-                  {error.includes('reloaded') ? 'Extension Updated' : 'No Job Posting Detected'}
-                </h2>
-                <p className="empty-subtitle">{error}</p>
-                <div className="empty-actions">
+              </div>
+            ) : (
+              <div className="welcome-guide-card">
+                <div className="welcome-header">
+                  <BrandLogo size={46} className="welcome-logo-badge" />
+                  <h2 className="welcome-title">Ready to Extract Jobs</h2>
+                  <p className="welcome-desc">
+                    Open any job posting on LinkedIn, Workday, Indeed, or career portals to extract clean details and calculate your ATS role fit.
+                  </p>
+                </div>
+
+                <div className="welcome-steps-group">
+                  <div className="welcome-step-item">
+                    <span className="welcome-step-num">1</span>
+                    <span className="welcome-step-text">
+                      <strong>Open any Job Posting</strong>: Dedicated isolation for LinkedIn 2-pane search results, Workday, Indeed, and enterprise ATS pages.
+                    </span>
+                  </div>
+                  <div className="welcome-step-item">
+                    <span className="welcome-step-num">2</span>
+                    <span className="welcome-step-text">
+                      <strong>1-Click Clean Extraction</strong>: Strips navigation, ads, and search noise into formatted Markdown and AI-ready prompts.
+                    </span>
+                  </div>
+                  <div className="welcome-step-item">
+                    <span className="welcome-step-num">3</span>
+                    <span className="welcome-step-text">
+                      <strong>Instant ATS Role Fit</strong>: Scores technical skills and experience thresholds against your resume in under 2ms.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="welcome-actions-row">
                   <button className="btn btn-filled" onClick={extractData}>
                     <ArrowClockwiseIcon size={14} color="#FFFFFF" />
-                    <span>Retry Extraction</span>
+                    <span>Check Active Page</span>
                   </button>
-                  <button className="btn btn-tinted" onClick={() => setActiveTab('resume')}>
+                  <button className="btn btn-tinted" onClick={handleOpenLinkedInJobs}>
+                    <span>Open LinkedIn Jobs</span>
+                    <ArrowUpRightIcon size={13} color="currentColor" />
+                  </button>
+                  <button className="btn btn-plain" onClick={() => setActiveTab('resume')}>
                     <PersonBadgeIcon size={14} color="var(--apple-blue)" />
-                    <span>{resumeProfile ? 'Manage My Resume' : 'Upload Resume'}</span>
+                    <span>{resumeProfile ? 'Manage Resume Profile' : 'Upload Resume for ATS Scoring'}</span>
                   </button>
                   {historyItems.length > 0 && (
-                    <button className="btn btn-tinted" onClick={() => setHistoryOpen(true)}>
+                    <button className="btn btn-plain" onClick={() => setHistoryOpen(true)}>
                       <ClockArrowIcon size={14} color="var(--apple-blue)" />
                       <span>View Saved Clips ({historyItems.length})</span>
                     </button>
                   )}
                 </div>
               </div>
-            </div>
+            )
           )}
 
           {!loading && !error && jobData && (
@@ -557,11 +623,7 @@ Please help me tailor my resume for this position:
               />
 
               <footer className="footer-meta">
-                <span>{jobData.method || 'Auto'}</span>
-                <span>·</span>
-                <span>{jobData.time || 0}ms</span>
-                <span>·</span>
-                <span>100% Private</span>
+                <span>© 2026 JD Extractor</span>
               </footer>
             </>
           )}
@@ -635,6 +697,9 @@ Please help me tailor my resume for this position:
       />
 
       <Toast message={toast.message} visible={toast.visible} />
+
+      {/* ── Native Mobile-Style Launch Splash Screen ── */}
+      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
     </div>
   );
 };

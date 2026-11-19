@@ -13,7 +13,7 @@ export const NavSegment = ({ activeTab, onChangeTab }) => {
           onClick={() => onChangeTab('job')}
         >
           <ClipboardDocIcon size={13} color="currentColor" />
-          <span>Job JD</span>
+          <span>Job Details</span>
         </button>
 
         <button
@@ -35,7 +35,7 @@ export const NavSegment = ({ activeTab, onChangeTab }) => {
           onClick={() => onChangeTab('resume')}
         >
           <PersonBadgeIcon size={13} color="currentColor" />
-          <span>My Resume</span>
+          <span>Resume</span>
         </button>
       </div>
     </div>

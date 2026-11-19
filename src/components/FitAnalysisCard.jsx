@@ -109,46 +109,79 @@ export const FitAnalysisCard = ({
         <div className="fit-analysis-section">
           <span className="fit-section-heading">Analysis</span>
           <ul className="fit-analysis-list">
-            {fit.jdExpInfo ? (
-              <li className="fit-analysis-item">
-                <span className="fit-bullet">•</span>
-                <span className="fit-item-text">
-                  {fit.expStatus === 'below_target' && (
-                    <strong className="text-warning">Experience Gap: </strong>
-                  )}
-                  {fit.expStatus === 'close_match' && (
-                    <strong className="text-neutral">Close Experience Match: </strong>
-                  )}
-                  {fit.expStatus === 'exceeds_or_meets' && (
-                    <strong className="text-success">Experience Match: </strong>
-                  )}
-                  Job asks for <strong>{fit.jdExpInfo.displayText}</strong> · You have{' '}
-                  <strong>{fit.candidateExp > 0 ? `${fit.candidateExp} yrs` : 'entry level'}</strong>
-                  {fit.expGap > 0 && ` (${fit.expGap} yr gap)`}
-                </span>
-              </li>
-            ) : (
-              <li className="fit-analysis-item">
-                <span className="fit-bullet">•</span>
-                <span className="fit-item-text">
-                  <strong>Experience: </strong>
-                  Not explicitly specified in posting · Your profile has{' '}
-                  <strong>{fit.candidateExp > 0 ? `${fit.candidateExp} yrs` : 'entry level'}</strong>
-                </span>
-              </li>
-            )}
+            {(() => {
+              // Experience match determination & semantic styling
+              let expClass = 'text-neutral';
+              let expLabel = 'Experience: ';
 
-            {fit.totalSkillsFound > 0 && (
-              <li className="fit-analysis-item">
-                <span className="fit-bullet">•</span>
-                <span className="fit-item-text">
-                  <strong>Skill Match: </strong>
-                  {fit.matchedCount} of {fit.totalSkillsFound} required skills identified (
-                  {Math.round((fit.matchedCount / fit.totalSkillsFound) * 100)}% coverage)
-                  {fit.missingCount > 0 && ` · ${fit.missingCount} gaps to bridge`}
-                </span>
-              </li>
-            )}
+              if (fit.jdExpInfo) {
+                if (fit.expStatus === 'exceeds_or_meets') {
+                  expClass = 'text-success';
+                  expLabel = 'Experience Match: ';
+                } else if (fit.expStatus === 'close_match') {
+                  expClass = 'text-neutral';
+                  expLabel = 'Close Experience Match: ';
+                } else {
+                  expClass = fit.expGap <= 1 ? 'text-warning' : 'text-danger';
+                  expLabel = 'Experience Gap: ';
+                }
+
+                return (
+                  <li className="fit-analysis-item">
+                    <span className={`fit-bullet ${expClass}`}>•</span>
+                    <span className="fit-item-text">
+                      <strong className={expClass}>{expLabel}</strong>
+                      Job asks for <strong>{fit.jdExpInfo.displayText}</strong> (you have{' '}
+                      <strong>{fit.candidateExp > 0 ? `${fit.candidateExp} yrs` : 'entry level'}</strong>
+                      {fit.expGap > 0 ? `, ${fit.expGap} yr gap` : ''})
+                    </span>
+                  </li>
+                );
+              }
+
+              // When experience is not explicitly specified in posting
+              if (fit.candidateExp >= 5) {
+                expClass = 'text-success';
+              } else if (fit.candidateExp >= 1) {
+                expClass = 'text-neutral';
+              } else {
+                expClass = 'text-warning';
+              }
+
+              return (
+                <li className="fit-analysis-item">
+                  <span className={`fit-bullet ${expClass}`}>•</span>
+                  <span className="fit-item-text">
+                    <strong className={expClass}>Experience: </strong>
+                    Not explicitly specified in posting (your profile has{' '}
+                    <strong>{fit.candidateExp > 0 ? `${fit.candidateExp} yrs` : 'entry level'}</strong>)
+                  </span>
+                </li>
+              );
+            })()}
+
+            {fit.totalSkillsFound > 0 && (() => {
+              const skillCoverage = Math.round((fit.matchedCount / fit.totalSkillsFound) * 100);
+              let skillClass = 'text-danger';
+              if (skillCoverage >= 75) {
+                skillClass = 'text-success';
+              } else if (skillCoverage >= 50) {
+                skillClass = 'text-neutral';
+              } else if (skillCoverage >= 25) {
+                skillClass = 'text-warning';
+              }
+
+              return (
+                <li className="fit-analysis-item">
+                  <span className={`fit-bullet ${skillClass}`}>•</span>
+                  <span className="fit-item-text">
+                    <strong className={skillClass}>Skill Match: </strong>
+                    {fit.matchedCount} of {fit.totalSkillsFound} required skills identified ({skillCoverage}% coverage
+                    {fit.missingCount > 0 ? `, ${fit.missingCount} gaps to bridge` : ', all skills matched'})
+                  </span>
+                </li>
+              );
+            })()}
           </ul>
         </div>
 

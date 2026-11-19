@@ -44,7 +44,10 @@ export const HistorySheet = ({ isOpen, items, onSelect, onClear, onClose }) => {
             >
               <div className="hist-content">
                 <div className="hist-title">{item.title}</div>
-                <div className="hist-meta">{item.company} · {item.date}</div>
+                <div className="hist-meta-row">
+                  <span className="hist-company">{item.company || 'Unknown Company'}</span>
+                  {item.date && <span className="hist-date-pill">{item.date}</span>}
+                </div>
               </div>
               <span className="hist-chevron">
                 <ChevronRightSmallIcon size={13} color="var(--text-3)" />

@@ -388,3 +388,11 @@ export const QuestionMarkCircleIcon = ({ size = 15, color = 'currentColor' }) =>
     <circle cx="9.75" cy="14.25" r="0.75" fill={color} stroke="none" />
   </svg>
 );
+
+// External Link / Open in New Tab icon (arrow.up.right)
+export const ArrowUpRightIcon = ({ size = 13, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 14L14 6" />
+    <path d="M8 6H14V12" />
+  </svg>
+);

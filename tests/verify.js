@@ -318,6 +318,63 @@ test('Job metadata formatters cleanly convert raw ISO dates, enum types, and sal
   assert.ok(jobCard.includes('formatEmploymentType'), 'formatEmploymentType used in JobCard.jsx');
 });
 
+// 15. Mobile Launch Splash Screen & NavSegment Tab Names Check
+test('SplashScreen component and updated Cupertino tab names [Job Details | Role Fit | Resume] are integrated', () => {
+  const nav = fs.readFileSync('src/components/NavSegment.jsx', 'utf8');
+  assert.ok(nav.includes('Job Details'), 'Job Details tab present');
+  assert.ok(nav.includes('Role Fit'), 'Role Fit tab present');
+  assert.ok(nav.includes('Resume'), 'Resume tab present');
+
+  const app = fs.readFileSync('src/App.jsx', 'utf8');
+  assert.ok(app.includes('SplashScreen'), 'SplashScreen integrated in App.jsx');
+  assert.ok(app.includes('welcome-guide-card'), 'Welcome guide card integrated in App.jsx');
+
+  const splash = fs.readFileSync('src/components/SplashScreen.jsx', 'utf8');
+  assert.ok(splash.includes('splash-screen'), 'splash-screen container present');
+  assert.ok(splash.includes('BrandLogo'), 'BrandLogo in SplashScreen');
+
+  const css = fs.readFileSync('src/styles/apple-theme.css', 'utf8');
+  assert.ok(css.includes('.splash-screen'), 'Splash screen CSS present');
+  assert.ok(css.includes('.welcome-guide-card'), 'Welcome guide card CSS present');
+});
+
+// 16. UI Polish: Clean Footers, Date Pill Badges & Fit Analysis Semantic Colors
+test('UI Polish: Footers are streamlined, history dates use Apple pill badge, and fit analysis bullets have semantic colors without middle dots', () => {
+  // 1. History date pill badge check
+  const history = fs.readFileSync('src/components/HistorySheet.jsx', 'utf8');
+  assert.ok(history.includes('hist-date-pill'), 'HistorySheet renders date in hist-date-pill');
+  assert.ok(history.includes('hist-meta-row'), 'HistorySheet uses hist-meta-row');
+  assert.ok(!history.includes('{item.company} · {item.date}'), 'Removed middle dot from history meta');
+
+  // 2. Fit analysis bullet coloring & dot removal check
+  const fitCard = fs.readFileSync('src/components/FitAnalysisCard.jsx', 'utf8');
+  assert.ok(fitCard.includes('skillClass'), 'FitAnalysisCard computes dynamic skillClass');
+  assert.ok(fitCard.includes('expClass'), 'FitAnalysisCard computes dynamic expClass');
+  assert.ok(fitCard.includes('fit-analysis-section'), 'Fit analysis section present');
+  // Confirm no middle dots in the analysis bullets
+  const fitLines = fitCard.split('\n');
+  const analysisSection = fitLines.slice(108, 190).join('\n');
+  assert.ok(!analysisSection.includes('·'), 'Fit analysis section contains zero middle dots');
+
+  // 3. Clean footers check: unified brand & copyright across screens
+  const app = fs.readFileSync('src/App.jsx', 'utf8');
+  assert.ok(app.includes('© 2026 JD Extractor'), 'App.jsx footer displays © 2026 JD Extractor');
+  assert.ok(!app.includes('{jobData.time || 0}ms'), 'Removed ms latency noise from App.jsx footer');
+
+  const splash = fs.readFileSync('src/components/SplashScreen.jsx', 'utf8');
+  assert.ok(splash.includes('© 2026 JD Extractor'), 'SplashScreen footer displays © 2026 JD Extractor');
+
+  const info = fs.readFileSync('src/components/InfoSheet.jsx', 'utf8');
+  assert.ok(info.includes('© 2026 JD Extractor'), 'InfoSheet footer displays © 2026 JD Extractor');
+
+  // 4. CSS support check
+  const css = fs.readFileSync('src/styles/apple-theme.css', 'utf8');
+  assert.ok(css.includes('.hist-date-pill'), 'CSS contains .hist-date-pill');
+  assert.ok(css.includes('.fit-item-text .text-danger'), 'CSS contains .fit-item-text .text-danger');
+  assert.ok(css.includes('.fit-bullet.text-danger'), 'CSS contains .fit-bullet.text-danger');
+  assert.ok(css.includes('.theme-dark .sheet-overlay'), 'CSS contains opaque sheet overlay');
+});
+
 console.log(`\nResults: ${passed}/${total} tests passed.\n`);
 if (passed === total) {
   console.log('✅ All checks passed! Production React extension is verified.\n');

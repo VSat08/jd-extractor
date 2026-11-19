@@ -248,8 +248,7 @@ export const InfoSheet = ({ isOpen, onClose }) => {
 
         {/* 5. Minimal Cupertino Footer */}
         <div className="faq-footer-card">
-          <span>JD Extractor · Job Description Extractor & ATS Resume Matcher</span>
-          <span>100% On-Device Privacy Architecture · Manifest V3</span>
+          <span>© 2026 JD Extractor</span>
         </div>
       </div>
     </div>

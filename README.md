@@ -47,14 +47,15 @@ The side panel features a clean, dedicated 3-segment Cupertino navigation contro
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  [ 📋 Job JD ]       [ ⚡ Role Fit ]      [ 👤 My Resume ]  │
+│  [ 📋 Job Details ]     [ ⚡ Role Fit ]       [ 👤 Resume ] │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 1. 📋 Job JD Tab
+### 1. 📋 Job Details Tab
 Extracts and isolates clean job specifications in real time as you navigate:
-- **Header Metadata Badges**: Company name, location, employment type (e.g. *Hybrid · Full-time*), date posted, and compensation package.
-- **Apple Notes Preview Box**: Real-time cleaned markdown text with live character and token counts.
+- **Header Metadata Badges**: Company name, location, employment type (e.g. *Full-time, Contract*), date posted, and compensation package with normalized ISO date conversion.
+- **Cupertino View Toggle (`[ Formatted | Raw ]`)**: Instant toggle between formatted rich Markdown (with rendered bolding, headings, clean unordered lists) and raw extracted text.
+- **Apple Notes Preview Box**: Real-time cleaned text with live character counts.
 - **4 AI Prompt Modes**:
   - `Resume` — Pinpoints missing keywords and drafts tailored achievement bullets.
   - `Letter` — Generates a compelling, authentic cover letter.
@@ -69,19 +70,26 @@ Compares the active job posting directly against your saved resume:
   - `🔵 Good Match (55–74%)` — Solid overall alignment with core requirements.
   - `🟠 Moderate Fit (40–54%)` — Matches several requirements with notable gaps.
   - `🔴 Stretch Role (<40%)` — Requires bridging multiple core prerequisites.
-- **Structured Gap Analysis**:
-  - `• Experience Gap`: Accurately parses range requirements (e.g., *Job asks for 4–7 yrs · You have 3 yrs (1 yr gap)*) while ignoring false positives like `Java 8+`.
-  - `• Skill Match`: Quantitative coverage metrics (e.g., *13 of 14 required skills identified (93% coverage)*).
+- **Structured Gap Analysis with Semantic Tiers**:
+  - `• Experience Match / Gap`: Accurately parses range requirements (e.g., *Job asks for 4–7 yrs (you have 8 yrs)*) and dynamically highlights experience status with accessible semantic green, blue, amber, or red.
+  - `• Skill Match`: Quantitative coverage metrics (e.g., *0 of 6 required skills identified (0% coverage, 6 gaps to bridge)*) colored according to tier match percentage.
 - **Matching Skills Pills**: Verified skills highlighted in accessible Cupertino green.
 - **Skill Gaps & Missing Keywords**: Missing keywords highlighted in accessible Cupertino amber.
 - **✨ Tailor AI Prompt for Gaps**: Automatically drafts a custom AI prompt instructed to bridge identified gaps and suggest transferable skill phrasing.
 
-### 3. 👤 My Resume Tab
+### 3. 👤 Resume Tab
 Manage your profile locally:
 - **Drag-and-Drop Dropzone**: Supports `.pdf` documents with instant client-side extraction.
 - **Quick-Paste Form**: Direct text input fallback.
 - **Extracted Profile Snapshot**: Displays candidate name, total verified professional experience (YOE), target roles, degree titles, and full list of recognized technical skills.
 - **Privacy Assurance**: All data remains exclusively in your browser’s `chrome.storage.local`.
+
+---
+
+## 📱 Mobile-Style Launch Splash Screen & Recent Clips
+- **Launch Splash Screen**: Displays an authentic Apple-style launch experience with squircle brand logo, smooth 1500ms hold, and 400ms crossfade into the side panel.
+- **Recent Clips Date Pills**: Saved job clippings feature native Apple-style pill badges (`[ 20 Nov ]`) for dates instead of plain text separators.
+- **Unified Branding & Copyright**: Consistent `© 2026 JD Extractor` micro-footer across the main panel, splash screen, and About & Privacy modal.
 
 ---
 
@@ -200,7 +208,7 @@ Designed according to macOS Sequoia, iOS 18, and visionOS design standards:
 
 ## 🧪 Testing & Quality Verification
 
-The repository includes a comprehensive 12-point automated verification suite covering Manifest V3 compliance, URL matchers, LinkedIn heuristics, skill taxonomy integrity, resume parsing, and deterministic scoring:
+The repository includes a comprehensive 16-point automated verification suite covering Manifest V3 compliance, URL matchers, LinkedIn heuristics, skill taxonomy integrity, resume parsing, deterministic scoring, Cupertino tabs, rich Markdown preview, and UI polish:
 
 ```bash
 # Run the complete verification test suite
@@ -222,8 +230,12 @@ npm test
   ✓ resumeParser transforms raw text into structured profile
   ✓ fitEngine accurately scores alignment, detects gaps, and generates tailored prompt
   ✓ NavSegment, ResumeView, FitAnalysisCard, and InfoSheet are integrated into App.jsx and CSS
+  ✓ MarkdownRenderer, Cupertino toggle [Formatted | Raw], and styles are integrated
+  ✓ Job metadata formatters cleanly convert raw ISO dates, enum types, and salaries
+  ✓ SplashScreen component and updated Cupertino tab names [Job Details | Role Fit | Resume] are integrated
+  ✓ UI Polish: Footers are streamlined, history dates use Apple pill badge, and fit analysis bullets have semantic colors without middle dots
 
-Results: 12/12 tests passed.
+Results: 16/16 tests passed.
 ✅ All checks passed! Production React extension is verified.
 ```
 
