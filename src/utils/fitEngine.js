@@ -7,22 +7,103 @@
 import { extractSkillsFromText } from './skillTaxonomy.js';
 
 /**
+ * Standard industry role clusters for semantic role matching
+ * Enables equivalent engineering roles (e.g. Application Developer <-> Software Engineer)
+ * to receive proper role alignment scoring without hardcoded candidate mappings.
+ */
+export const ROLE_CLUSTERS = [
+  {
+    name: 'Full Stack / Software Engineering',
+    tokens: [
+      'full stack', 'fullstack', 'software engineer', 'software developer',
+      'application developer', 'application engineer', 'product engineer', 'systems engineer'
+    ],
+  },
+  {
+    name: 'Frontend / UI Engineering',
+    tokens: [
+      'frontend', 'front end', 'front-end', 'ui engineer', 'ui developer',
+      'web developer', 'react developer', 'angular developer', 'vue developer'
+    ],
+  },
+  {
+    name: 'Backend Engineering',
+    tokens: [
+      'backend', 'back end', 'back-end', 'server engineer', 'java developer',
+      'python developer', 'golang developer', 'node developer', 'api engineer'
+    ],
+  },
+  {
+    name: 'Cloud / DevOps / SRE',
+    tokens: [
+      'devops', 'devsecops', 'cloud engineer', 'cloud architect', 'azure engineer', 'azure solution engineer',
+      'aws engineer', 'site reliability engineer', 'sre', 'infrastructure engineer', 'platform engineer'
+    ],
+  },
+  {
+    name: 'Data & Analytics',
+    tokens: [
+      'data engineer', 'data scientist', 'data analyst', 'bi engineer', 'analytics engineer', 'big data'
+    ],
+  },
+  {
+    name: 'AI / Machine Learning',
+    tokens: [
+      'machine learning', 'ml engineer', 'ai engineer', 'ai researcher', 'deep learning', 'genai engineer'
+    ],
+  },
+  {
+    name: 'Mobile Engineering',
+    tokens: [
+      'mobile developer', 'mobile engineer', 'ios developer', 'android developer', 'react native', 'flutter'
+    ],
+  },
+  {
+    name: 'QA & Testing',
+    tokens: [
+      'qa engineer', 'quality assurance', 'qa tester', 'automation engineer', 'sdet', 'test engineer'
+    ],
+  },
+  {
+    name: 'Product & UI/UX Design',
+    tokens: [
+      'ui/ux', 'product designer', 'ux designer', 'ui designer', 'interaction designer', 'graphic designer'
+    ],
+  },
+  {
+    name: 'Product Management',
+    tokens: [
+      'product manager', 'product management', 'technical product manager', 'group product manager', 'product owner'
+    ],
+  },
+  {
+    name: 'Engineering Leadership',
+    tokens: [
+      'tech lead', 'engineering manager', 'lead developer', 'lead engineer', 'staff engineer', 'principal engineer', 'architect'
+    ],
+  },
+];
+
+/**
  * Extracts required years of experience from Job Description text
- * Accurately parses ranges (e.g. "4-7 years"), plus notations ("3+ years"),
- * and minimum statements ("minimum 2 years"), while ignoring language version tags like "Java 8+".
+ * Accurately parses ranges (e.g. "4-7 years", "0-1 years"), plus notations ("3+ years"),
+ * minimum statements ("minimum 2 years"), and fresher / entry level postings.
  * @param {string} text 
  * @returns {{ minYears: number, maxYears: number|null, displayText: string }|null}
  */
 export function extractJdRequiredExperience(text) {
   if (!text) return null;
 
-  // 1. Explicit Range pattern FIRST: e.g. "4-7 years", "4 - 7 yrs", "4 to 7 years"
-  const rangeRegex = /\b(\d+(?:\.\d+)?)\s*(?:-|–|—|to)\s*(\d+(?:\.\d+)?)\s*(?:years|yrs)\b/i;
+  // Year unit supporting "years", "year", "yrs", "yr", "year(s)", "yr(s)"
+  const yUnit = '(?:years?|yrs?|year\\(s\\)|yr\\(s\\))';
+
+  // 1. Explicit Range pattern FIRST: e.g. "4-7 years", "4 - 7 yrs", "0-1 years", "0 - 2 yrs", "5 – 6 yrs"
+  const rangeRegex = new RegExp(`\\b(\\d+(?:\\.\\d+)?)\\s*(?:-|–|—|to)\\s*(\\d+(?:\\.\\d+)?)\\s*${yUnit}`, 'i');
   const rangeMatch = text.match(rangeRegex);
   if (rangeMatch) {
     const min = parseFloat(rangeMatch[1]);
     const max = parseFloat(rangeMatch[2]);
-    if (min >= 0.5 && max <= 30 && max >= min) {
+    if (min >= 0 && max <= 30 && max >= min) {
       return {
         minYears: min,
         maxYears: max,
@@ -31,8 +112,8 @@ export function extractJdRequiredExperience(text) {
     }
   }
 
-  // 2. Plus notation pattern: e.g. "3+ years", "3 + yrs", "2.5+ yrs"
-  const plusRegex = /\b(\d+(?:\.\d+)?)\s*\+\s*(?:years|yrs)\b/i;
+  // 2. Plus notation pattern: e.g. "3+ years", "3 + yrs", "2.5+ yrs", "2 to 2+ Years"
+  const plusRegex = new RegExp(`\\b(\\d+(?:\\.\\d+)?)\\s*(?:to\\s*\\d+\\s*)?\\+\\s*${yUnit}`, 'i');
   const plusMatch = text.match(plusRegex);
   if (plusMatch) {
     const min = parseFloat(plusMatch[1]);
@@ -45,8 +126,8 @@ export function extractJdRequiredExperience(text) {
     }
   }
 
-  // 3. Minimum / at least statements: e.g. "minimum 4 years", "at least 2 years"
-  const minRegex = /(?:minimum|at\s+least|require[ds]?)\s*(\d+(?:\.\d+)?)\s*(?:years|yrs)\b/i;
+  // 3. Minimum / at least / required statements: e.g. "minimum 3 year(s)", "minimum 4 years", "at least 2 years"
+  const minRegex = new RegExp(`(?:minimum|at\\s+least|require[ds]?)\\s*(\\d+(?:\\.\\d+)?)\\s*${yUnit}`, 'i');
   const minMatch = text.match(minRegex);
   if (minMatch) {
     const min = parseFloat(minMatch[1]);
@@ -59,8 +140,8 @@ export function extractJdRequiredExperience(text) {
     }
   }
 
-  // 4. General pattern: "3 years of experience", "5 years experience"
-  const genRegex = /\b(\d+(?:\.\d+)?)\s*(?:years|yrs)(?:\s+of)?\s+(?:experience|exp|hands-on)\b/i;
+  // 4. General pattern: "3 years of experience", "5 years experience", "3 year(s) of experience"
+  const genRegex = new RegExp(`\\b(\\d+(?:\\.\\d+)?)\\s*${yUnit}(?:\\s+of)?\\s+(?:experience|exp|hands-on)`, 'i');
   const genMatch = text.match(genRegex);
   if (genMatch) {
     const min = parseFloat(genMatch[1]);
@@ -71,6 +152,16 @@ export function extractJdRequiredExperience(text) {
         displayText: `${min}+ yrs`,
       };
     }
+  }
+
+  // 5. Fresher / Entry Level / Graduate / Internship detection
+  const entryRegex = /\b(?:fresher|freshers|entry[- ]level|new\s+grad(?:uate)?|internship|no\s+prior\s+experience)\b/i;
+  if (entryRegex.test(text)) {
+    return {
+      minYears: 0,
+      maxYears: 1,
+      displayText: 'Entry level (0–1 yrs)',
+    };
   }
 
   return null;
@@ -115,7 +206,11 @@ export function calculateFit(jobData, resumeProfile) {
 
   if (jdExpInfo) {
     const minReq = jdExpInfo.minYears;
-    if (candidateExp >= minReq) {
+    if (minReq === 0) {
+      expScore = 20;
+      expStatus = 'exceeds_or_meets';
+      expGap = 0;
+    } else if (candidateExp >= minReq) {
       expScore = 20;
       expStatus = 'exceeds_or_meets';
     } else if (candidateExp >= minReq - 1.5) {
@@ -129,12 +224,35 @@ export function calculateFit(jobData, resumeProfile) {
     }
   }
 
-  // 4. Title / Role Keyword Alignment
+  // 4. Title / Role Keyword Alignment (with Semantic Cluster matching)
   let roleBonus = 0;
   if (jobData.title && resumeProfile.roles && resumeProfile.roles.length > 0) {
     const titleLower = jobData.title.toLowerCase();
-    const matchesAnyRole = resumeProfile.roles.some((r) => titleLower.includes(r.toLowerCase()));
-    if (matchesAnyRole) {
+
+    // Direct or reverse substring check
+    let matches = resumeProfile.roles.some((r) => {
+      const rLower = r.toLowerCase();
+      return titleLower.includes(rLower) || rLower.includes(titleLower);
+    });
+
+    // Semantic cluster check
+    if (!matches) {
+      for (const cluster of ROLE_CLUSTERS) {
+        const jdInCluster = cluster.tokens.some((token) => titleLower.includes(token));
+        if (jdInCluster) {
+          const candidateInCluster = resumeProfile.roles.some((r) => {
+            const rLower = r.toLowerCase();
+            return cluster.tokens.some((token) => rLower.includes(token));
+          });
+          if (candidateInCluster) {
+            matches = true;
+            break;
+          }
+        }
+      }
+    }
+
+    if (matches) {
       roleBonus = 5;
     }
   }

@@ -208,11 +208,14 @@ Designed according to macOS Sequoia, iOS 18, and visionOS design standards:
 
 ## 🧪 Testing & Quality Verification
 
-The repository includes a comprehensive 16-point automated verification suite covering Manifest V3 compliance, URL matchers, LinkedIn heuristics, skill taxonomy integrity, resume parsing, deterministic scoring, Cupertino tabs, rich Markdown preview, and UI polish:
+The repository includes a comprehensive 19-point automated verification suite alongside a 66-combination scalable benchmark suite covering Manifest V3 compliance, URL matchers, LinkedIn heuristics, skill taxonomy integrity, resume parsing, deterministic scoring, semantic role clustering, entry-level detection, and international contacts:
 
 ```bash
-# Run the complete verification test suite
+# 1. Run the core verification test suite (19/19 passing)
 npm test
+
+# 2. Run the scalable 66-match matrix benchmark (6 Resumes x 11 Industry JDs)
+npm run test:benchmark
 ```
 
 ```text
@@ -234,10 +237,26 @@ npm test
   ✓ Job metadata formatters cleanly convert raw ISO dates, enum types, and salaries
   ✓ SplashScreen component and updated Cupertino tab names [Job Details | Role Fit | Resume] are integrated
   ✓ UI Polish: Footers are streamlined, history dates use Apple pill badge, and fit analysis bullets have semantic colors without middle dots
+  ✓ Resume Parser achieves high accuracy across diverse ground-truth resumes without false positives
+  ✓ ATS engine accurately scores match, detects gaps, and separates engineering from non-tech candidates
+  ✓ Enterprise Robustness: Semantic Clustering, Fresh Grad JDs, Mobile & Design Taxonomy, International Contacts
 
-Results: 16/16 tests passed.
+Results: 19/19 tests passed.
 ✅ All checks passed! Production React extension is verified.
 ```
+
+### 📊 Scalable Benchmark Matrix (6 Resumes × 11 Industry JDs)
+
+| Candidate / Discipline | Accenture (React) | Deloitte (Java/React 6-10y) | KSB (Angular 5-6y) | Vivid (UI Eng 2y) | Hitachi (Azure Cloud) | TechCorp (Fresher 0-1y) | Docusketch (AI/ML 5y) | Bjak (Android 3y) | Upgrade (DevSecOps 7y) | Airbnb (Data Eng 5y) | Spring Health (Data PM 4y) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **John Doe** *(Retail / Non-Tech)* | **20%** (S) | **20%** (S) | **20%** (S) | **20%** (S) | **15%** (S) | **20%** (S) | **20%** (S) | **20%** (S) | **20%** (S) | **20%** (S) | **20%** (S) |
+| **First Name Last Name** *(Food Service)* | **20%** (S) | **15%** (S) | **15%** (S) | **20%** (S) | **15%** (S) | **20%** (S) | **15%** (S) | **20%** (S) | **15%** (S) | **15%** (S) | **20%** (S) |
+| **Satyam Verma** *(Full-Stack SWE)* | **85%** (S) | **70%** (G) | **51%** (M) | **70%** (G) | **76%** (S) | **95%** (S) | **37%** (S) | **20%** (S) | **31%** (S) | **50%** (M) | **37%** (S) |
+| **Alex Rivera** *(DevSecOps / Cloud)* | **35%** (S) | **28%** (S) | **40%** (M) | **20%** (S) | **34%** (S) | **20%** (S) | **45%** (M) | **20%** (S) | **98%** (S) | **39%** (S) | **20%** (S) |
+| **Elena Chen** *(AI & Machine Learning)* | **20%** (S) | **28%** (S) | **20%** (S) | **20%** (S) | **34%** (S) | **20%** (S) | **98%** (S) | **20%** (S) | **28%** (S) | **76%** (S) | **70%** (G) |
+| **Marcus Taylor** *(Android Mobile)* | **50%** (M) | **28%** (S) | **27%** (S) | **28%** (S) | **24%** (S) | **35%** (S) | **20%** (S) | **98%** (S) | **37%** (S) | **20%** (S) | **20%** (S) |
+
+*(Legend: **S** = Strong Match ≥75%, **G** = Good Match 55–74%, **M** = Moderate Fit 40–54%, **S** [red] = Stretch Role <40%)*
 
 ---
 

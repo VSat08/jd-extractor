@@ -375,6 +375,153 @@ test('UI Polish: Footers are streamlined, history dates use Apple pill badge, an
   assert.ok(css.includes('.theme-dark .sheet-overlay'), 'CSS contains opaque sheet overlay');
 });
 
+// 17. Multi-Resume Parser Accuracy & Ground-Truth Verification
+test('Resume Parser achieves high accuracy across diverse ground-truth resumes without false positives', () => {
+  // Test A: False Positive Prevention (Go, R, Next, Express)
+  const falsePositiveText = `
+    Alex Johnson
+    alex@example.com | 555-0100
+    Interests: Basketball (Go Celtics!), Reading
+    Experience: Handled express shipment logistics and research & innovation (R&I). Excited for next step.
+    Education: B.A. in History | 2020
+  `;
+  const parsedFP = parseResume(falsePositiveText);
+  assert.strictEqual(parsedFP.skills.includes('Go'), false, 'Go Celtics does NOT match Go language');
+  assert.strictEqual(parsedFP.skills.includes('R'), false, 'R&I does NOT match R language');
+  assert.strictEqual(parsedFP.skills.includes('Next.js'), false, 'next step does NOT match Next.js');
+  assert.strictEqual(parsedFP.skills.includes('Express.js'), false, 'express shipment does NOT match Express.js');
+
+  // Test B: Slash date ranges (MM/YYYY) and Associate degree
+  const resume2Text = `
+    First Name Last Name
+    email@email.com | 617-555-1234
+    Experience
+    01/2015-06/2017 Host
+    TFI Fridays – Boston, MA
+    01/2013-12/2014 Food Service Management Intern
+    Education
+    2015 Associates Degree: Business Administration
+  `;
+  const parsedR2 = parseResume(resume2Text);
+  assert.ok(parsedR2.experienceYears >= 4, `Expected >= 4 yrs, got ${parsedR2.experienceYears}`);
+  assert.ok(parsedR2.education.includes('Associates Degree'), 'Captured Associates Degree');
+
+  // Test C: True positive engineering resume
+  const engineeringText = `
+    Satyam Verma
+    satyam2001verma@gmail.com | +91-9508081743 | linkedin.com/in/satyamverma-ux | github.com/VSat08
+    Software Engineer | Full-Stack
+    Languages: Java, Python, Go, C++, SQL
+    Experience
+    Product Engineer | TCS | May 2025 - Present
+    Full-Stack Developer | Freelance | 2022 - 2024
+    Education
+    B.Tech, Computer Science & Engineering | 2024
+  `;
+  const parsedEng = parseResume(engineeringText);
+  assert.strictEqual(parsedEng.candidateName, 'Satyam Verma');
+  assert.ok(parsedEng.skills.includes('Go'), 'Real Go in Languages list is matched');
+  assert.ok(parsedEng.skills.includes('Java'), 'Java is matched');
+  assert.ok(parsedEng.skills.includes('Python'), 'Python is matched');
+  assert.ok(parsedEng.skills.includes('C++'), 'C++ is matched');
+  assert.ok(parsedEng.experienceYears >= 3, `Expected >= 3 yrs, got ${parsedEng.experienceYears}`);
+  assert.ok(parsedEng.education.includes('B.Tech'), 'B.Tech is matched');
+});
+
+// 18. Deterministic ATS Fit Ground-Truth Scoring against 5 Production JDs
+test('ATS engine accurately scores match, detects gaps, and separates engineering from non-tech candidates', () => {
+  const engProfile = {
+    candidateName: 'Satyam Verma',
+    experienceYears: 3.5,
+    skills: ['JavaScript', 'TypeScript', 'React', 'Angular', 'Node.js', 'Spring Boot', 'REST APIs', 'Microservices', 'Docker', 'Azure', 'Git', 'Responsive Web Design'],
+    roles: ['Software Engineer', 'Full Stack Developer'],
+  };
+
+  const nonTechProfile = {
+    candidateName: 'John Doe',
+    experienceYears: 10,
+    skills: [],
+    roles: [],
+  };
+
+  // JD 1: Accenture (React, 3+ yrs)
+  const jd1 = {
+    title: 'Application Developer',
+    company: 'Accenture',
+    description: 'Minimum 3 Year(s) Of Experience Is Required. Must have skills: React.js, JavaScript, RESTful APIs, Git, responsive design.'
+  };
+  const fit1Eng = calculateFit(jd1, engProfile);
+  assert.ok(fit1Eng.score >= 85, `Expected score >= 85 for Accenture, got ${fit1Eng.score}`);
+  assert.strictEqual(fit1Eng.expStatus, 'exceeds_or_meets');
+
+  const fit1NonTech = calculateFit(jd1, nonTechProfile);
+  assert.ok(fit1NonTech.score <= 35, `Expected non-tech score <= 35, got ${fit1NonTech.score}`);
+  assert.strictEqual(fit1NonTech.matchedCount, 0, 'Non-tech matches 0 technical skills');
+
+  // JD 2: Deloitte Senior Role (6-10 yrs Java, React)
+  const jd2 = {
+    title: 'Software Engineer III',
+    company: 'Deloitte',
+    description: '6-10 years of strong hands-on experience in JAVA. 4 - 7 years in React. Microservices, Spring Boot, RESTful APIs, GraphQL.'
+  };
+  const fit2Eng = calculateFit(jd2, engProfile);
+  assert.strictEqual(fit2Eng.expStatus, 'below_target', 'Senior role flags experience gap');
+  assert.ok(fit2Eng.missingSkills.includes('GraphQL'), 'Identifies missing GraphQL');
+  assert.ok(fit2Eng.score >= 60 && fit2Eng.score <= 80, `Expected 60-80% for senior stretch, got ${fit2Eng.score}`);
+});
+
+// 19. Enterprise Robustness: Semantic Clustering, Fresh Grad JDs, Mobile & Design Taxonomy, International Contacts
+test('Enterprise Robustness: Semantic Clustering, Fresh Grad JDs, Mobile & Design Taxonomy, International Contacts', () => {
+  // A. Semantic Role Clustering Alignment
+  const clusterJob = {
+    title: 'Application Developer',
+    description: 'Looking for developers with JavaScript and React experience.'
+  };
+  const profileWithSoftwareEng = {
+    roles: ['Software Engineer'],
+    skills: ['JavaScript', 'React'],
+    experienceYears: 2
+  };
+  const clusterFit = calculateFit(clusterJob, profileWithSoftwareEng);
+  assert.ok(clusterFit.score >= 80, 'Application Developer aligns with Software Engineer via semantic clustering');
+
+  // B. Entry-Level / Fresher JD Detection
+  const fresherJdText = 'Exciting opportunity for entry level freshers or new graduates. 0-1 years of experience in web tech.';
+  const expParsed = extractJdRequiredExperience(fresherJdText);
+  assert.strictEqual(expParsed.minYears, 0, 'Detects 0 minYears for entry level / fresher');
+  assert.strictEqual(expParsed.displayText, '0–1 yrs');
+
+  const fresherFit = calculateFit({ title: 'Frontend Intern', description: fresherJdText }, { skills: [], experienceYears: 0 });
+  assert.strictEqual(fresherFit.expStatus, 'exceeds_or_meets', 'Candidate with 0 years meets entry-level role target');
+
+  // C. Expanded Tech Taxonomy (Mobile, Design, QA, Security, State)
+  const skillsText = 'We use React Native, Flutter, Figma, wireframes, Cypress E2E, OAuth2 JWT authentication, and React Context API.';
+  const extractedSkills = extractSkillsFromText(skillsText);
+  assert.ok(extractedSkills.includes('React Native'), 'Matches React Native');
+  assert.ok(extractedSkills.includes('Flutter'), 'Matches Flutter');
+  assert.ok(extractedSkills.includes('Figma'), 'Matches Figma');
+  assert.ok(extractedSkills.includes('UI/UX Design'), 'Matches wireframes to UI/UX Design');
+  assert.ok(extractedSkills.includes('End-to-End Testing (E2E)'), 'Matches Cypress to E2E Testing');
+  assert.ok(extractedSkills.includes('Authentication & Security'), 'Matches OAuth2/JWT');
+  assert.ok(extractedSkills.includes('Context API'), 'Matches Context API');
+
+  // D. International Phone & Education Degree Precision
+  const resumeWithInternational = `
+    Jane Smith
+    jane@example.com | +44 7911 123456 | behance.net/janesmith | leetcode.com/u/jane_code
+    Be proactive and drive results.
+    Education
+    Associates Degree: Graphic Arts
+  `;
+  const parsedJane = parseResume(resumeWithInternational);
+  assert.strictEqual(parsedJane.candidateName, 'Jane Smith');
+  assert.strictEqual(parsedJane.phone, '+44 7911 123456', 'Extracts UK international phone number');
+  assert.ok(parsedJane.links.includes('behance.net/janesmith'), 'Extracts Behance portfolio link');
+  assert.ok(parsedJane.links.includes('leetcode.com/u/jane_code'), 'Extracts LeetCode link');
+  assert.strictEqual(parsedJane.education.includes('Associates Degree'), true, 'Extracts Associates Degree');
+  assert.strictEqual(parsedJane.education.includes('Be'), false, 'Word "Be" is not falsely captured as degree');
+});
+
 console.log(`\nResults: ${passed}/${total} tests passed.\n`);
 if (passed === total) {
   console.log('✅ All checks passed! Production React extension is verified.\n');

@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build",
-    "test": "node tests/verify.js"
+    "test": "node tests/verify.js",
+    "test:benchmark": "node tests/benchmark_scale.js"
   },
   "keywords": [],
   "author": "",
