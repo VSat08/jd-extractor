@@ -408,18 +408,18 @@ test('Resume Parser achieves high accuracy across diverse ground-truth resumes w
 
   // Test C: True positive engineering resume
   const engineeringText = `
-    Satyam Verma
-    satyam2001verma@gmail.com | +91-9508081743 | linkedin.com/in/satyamverma-ux | github.com/VSat08
+    Alex Taylor
+    alex.taylor@example.com | +1 (555) 234-5678 | linkedin.com/in/alextaylor-dev | github.com/alextaylor-dev
     Software Engineer | Full-Stack
     Languages: Java, Python, Go, C++, SQL
     Experience
-    Product Engineer | TCS | May 2025 - Present
+    Product Engineer | Enterprise Tech Inc | May 2025 - Present
     Full-Stack Developer | Freelance | 2022 - 2024
     Education
     B.Tech, Computer Science & Engineering | 2024
   `;
   const parsedEng = parseResume(engineeringText);
-  assert.strictEqual(parsedEng.candidateName, 'Satyam Verma');
+  assert.strictEqual(parsedEng.candidateName, 'Alex Taylor');
   assert.ok(parsedEng.skills.includes('Go'), 'Real Go in Languages list is matched');
   assert.ok(parsedEng.skills.includes('Java'), 'Java is matched');
   assert.ok(parsedEng.skills.includes('Python'), 'Python is matched');
@@ -431,14 +431,14 @@ test('Resume Parser achieves high accuracy across diverse ground-truth resumes w
 // 18. Deterministic ATS Fit Ground-Truth Scoring against 5 Production JDs
 test('ATS engine accurately scores match, detects gaps, and separates engineering from non-tech candidates', () => {
   const engProfile = {
-    candidateName: 'Satyam Verma',
+    candidateName: 'Alex Taylor',
     experienceYears: 3.5,
     skills: ['JavaScript', 'TypeScript', 'React', 'Angular', 'Node.js', 'Spring Boot', 'REST APIs', 'Microservices', 'Docker', 'Azure', 'Git', 'Responsive Web Design'],
     roles: ['Software Engineer', 'Full Stack Developer'],
   };
 
   const nonTechProfile = {
-    candidateName: 'John Doe',
+    candidateName: 'Jordan Smith',
     experienceYears: 10,
     skills: [],
     roles: [],

@@ -141,7 +141,7 @@ function extractContactDetails(text) {
   const emailMatch = text.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/);
   const email = emailMatch ? emailMatch[0] : null;
 
-  // Supports US formats (617-555-1234, (617) 555-1234), international numbers (+91 95080 81743, +91-9508081743, +44 7911 123456), etc.
+  // Supports US formats (617-555-1234, (617) 555-1234), international numbers (+91 98765 43210, +44 7911 123456), etc.
   const phoneMatch = text.match(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b|(?:\+\d{1,3}[-.\s]?)?\b\d{5}[-.\s]?\d{5}\b|(?:\+\d{1,3}[-.\s]?)?\b\d{4}[-.\s]?\d{6}\b/);
   const phone = phoneMatch ? phoneMatch[0].trim() : null;
 

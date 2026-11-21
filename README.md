@@ -245,16 +245,16 @@ Results: 19/19 tests passed.
 ✅ All checks passed! Production React extension is verified.
 ```
 
-### 📊 Scalable Benchmark Matrix (6 Resumes × 11 Industry JDs)
+### 📊 Scalable Benchmark Matrix (6 Candidate Profiles × 11 Industry JDs)
 
-| Candidate / Discipline | Accenture (React) | Deloitte (Java/React 6-10y) | KSB (Angular 5-6y) | Vivid (UI Eng 2y) | Hitachi (Azure Cloud) | TechCorp (Fresher 0-1y) | Docusketch (AI/ML 5y) | Bjak (Android 3y) | Upgrade (DevSecOps 7y) | Airbnb (Data Eng 5y) | Spring Health (Data PM 4y) |
+| Candidate Profile | Accenture (React) | Deloitte (Java/React 6-10y) | KSB (Angular 5-6y) | Vivid (UI Eng 2y) | Hitachi (Azure Cloud) | TechCorp (Fresher 0-1y) | Docusketch (AI/ML 5y) | Bjak (Android 3y) | Upgrade (DevSecOps 7y) | Airbnb (Data Eng 5y) | Spring Health (Data PM 4y) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **John Doe** *(Retail / Non-Tech)* | **20%** (S) | **20%** (S) | **20%** (S) | **20%** (S) | **15%** (S) | **20%** (S) | **20%** (S) | **20%** (S) | **20%** (S) | **20%** (S) | **20%** (S) |
-| **First Name Last Name** *(Food Service)* | **20%** (S) | **15%** (S) | **15%** (S) | **20%** (S) | **15%** (S) | **20%** (S) | **15%** (S) | **20%** (S) | **15%** (S) | **15%** (S) | **20%** (S) |
-| **Satyam Verma** *(Full-Stack SWE)* | **85%** (S) | **70%** (G) | **51%** (M) | **70%** (G) | **76%** (S) | **95%** (S) | **37%** (S) | **20%** (S) | **31%** (S) | **50%** (M) | **37%** (S) |
-| **Alex Rivera** *(DevSecOps / Cloud)* | **35%** (S) | **28%** (S) | **40%** (M) | **20%** (S) | **34%** (S) | **20%** (S) | **45%** (M) | **20%** (S) | **98%** (S) | **39%** (S) | **20%** (S) |
-| **Elena Chen** *(AI & Machine Learning)* | **20%** (S) | **28%** (S) | **20%** (S) | **20%** (S) | **34%** (S) | **20%** (S) | **98%** (S) | **20%** (S) | **28%** (S) | **76%** (S) | **70%** (G) |
-| **Marcus Taylor** *(Android Mobile)* | **50%** (M) | **28%** (S) | **27%** (S) | **28%** (S) | **24%** (S) | **35%** (S) | **20%** (S) | **98%** (S) | **37%** (S) | **20%** (S) | **20%** (S) |
+| **Retail Sales Profile (Non-Tech)** | **20%** (S) | **20%** (S) | **20%** (S) | **20%** (S) | **15%** (S) | **20%** (S) | **20%** (S) | **20%** (S) | **20%** (S) | **20%** (S) | **20%** (S) |
+| **Food Service Profile (Non-Tech)** | **20%** (S) | **15%** (S) | **15%** (S) | **20%** (S) | **15%** (S) | **20%** (S) | **15%** (S) | **20%** (S) | **15%** (S) | **15%** (S) | **20%** (S) |
+| **Full-Stack SWE Profile** | **85%** (S) | **70%** (G) | **51%** (M) | **70%** (G) | **76%** (S) | **95%** (S) | **37%** (S) | **20%** (S) | **31%** (S) | **50%** (M) | **37%** (S) |
+| **DevSecOps / Cloud Profile** | **35%** (S) | **28%** (S) | **40%** (M) | **20%** (S) | **34%** (S) | **20%** (S) | **45%** (M) | **20%** (S) | **98%** (S) | **39%** (S) | **20%** (S) |
+| **AI / Machine Learning Profile** | **20%** (S) | **28%** (S) | **20%** (S) | **20%** (S) | **34%** (S) | **20%** (S) | **98%** (S) | **20%** (S) | **28%** (S) | **76%** (S) | **70%** (G) |
+| **Android Mobile Profile** | **50%** (M) | **28%** (S) | **27%** (S) | **28%** (S) | **24%** (S) | **35%** (S) | **20%** (S) | **98%** (S) | **37%** (S) | **20%** (S) | **20%** (S) |
 
 *(Legend: **S** = Strong Match ≥75%, **G** = Good Match 55–74%, **M** = Moderate Fit 40–54%, **S** [red] = Stretch Role <40%)*
 

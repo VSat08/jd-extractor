@@ -130,16 +130,16 @@ const RESUMES = [
   },
   {
     id: 'res-03',
-    name: 'Satyam Verma',
+    name: 'Alex Taylor',
     domain: 'Full-Stack Software Engineer',
     rawText: `
-      Satyam Verma
-      satyam2001verma@gmail.com | +91-9508081743 | linkedin.com/in/satyamverma-ux | github.com/VSat08
+      Alex Taylor
+      alex.taylor@example.com | +1 (555) 234-5678 | linkedin.com/in/alextaylor-dev | github.com/alextaylor-dev
       Software Engineer | Full-Stack
       Languages: Java, Python, Go, TypeScript, JavaScript, SQL, HTML5, CSS3
       Frameworks & Tools: React, Angular, Node.js, Spring Boot, Docker, Azure, REST APIs, Microservices, Git, Vite, Redux
       Experience
-      Product Engineer | TCS | May 2025 - Present
+      Product Engineer | Enterprise Tech Inc | May 2025 - Present
       Full-Stack Developer | Freelance | 2022 - 2024
       Education
       B.Tech, Computer Science & Engineering | 2024
@@ -211,9 +211,9 @@ assert.strictEqual(parsedProfiles[0].candidateName, 'John Doe');
 assert.strictEqual(parsedProfiles[0].skills.length, 0, 'Retail candidate has 0 software skills (0 false positives)');
 assert.strictEqual(parsedProfiles[1].candidateName, 'First Name Last Name');
 assert.strictEqual(parsedProfiles[1].skills.length, 0, 'Hospitality candidate has 0 software skills (0 false positives)');
-assert.strictEqual(parsedProfiles[2].candidateName, 'Satyam Verma');
-assert.ok(parsedProfiles[2].skills.includes('React'), 'Satyam has React');
-assert.ok(parsedProfiles[2].skills.includes('Spring Boot'), 'Satyam has Spring Boot');
+assert.strictEqual(parsedProfiles[2].candidateName, 'Alex Taylor');
+assert.ok(parsedProfiles[2].skills.includes('React'), 'Alex has React');
+assert.ok(parsedProfiles[2].skills.includes('Spring Boot'), 'Alex has Spring Boot');
 assert.strictEqual(parsedProfiles[3].candidateName, 'Alex Rivera');
 assert.ok(parsedProfiles[3].skills.includes('Terraform'), 'Alex has Terraform');
 assert.ok(parsedProfiles[3].skills.includes('Kubernetes'), 'Alex has Kubernetes');
@@ -257,9 +257,9 @@ for (const jd of JOB_DESCRIPTIONS) {
     }
 
     // High Domain Alignment verification:
-    // Satyam on Accenture Application Developer:
-    if (resume.candidateName === 'Satyam Verma' && jd.id === 'jd-01') {
-      assert.ok(fit.score >= 80, `Satyam should get >=80% on Accenture React, got ${fit.score}`);
+    // Alex on Accenture Application Developer:
+    if (resume.candidateName === 'Alex Taylor' && jd.id === 'jd-01') {
+      assert.ok(fit.score >= 80, `Alex should get >=80% on Accenture React, got ${fit.score}`);
       assert.strictEqual(fit.category, 'strong');
     }
     // Alex on Upgrade DevSecOps:
